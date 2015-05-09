@@ -1,5 +1,6 @@
 Potaufeu
 ========
+[![Build Status](https://travis-ci.org/argius/potaufeu.png)](https://travis-ci.org/argius/potaufeu)
 
 Potaufeu is a find utility written in Java.
 
