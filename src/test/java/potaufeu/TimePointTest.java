@@ -20,10 +20,10 @@ public class TimePointTest {
     @Test
     public void testMillis() {
         assertNotNull(new TimePoint());
-        assertEquals(1425153900000L, millis("201503010505"));
-        assertEquals(1425153900000L, millis("201503010505", 0L));
-        assertEquals(1425153959999L, millis("201503010505", true));
-        assertEquals(1425153997987L, millis("20150301050637987"));
+        assertEquals("20150301050500", _millis("201503010505"));
+        assertEquals("20150301050500", _millis("201503010505", 0L));
+        assertEquals("20150301050559", _millis("201503010505", true));
+        assertEquals("20150301050637", _millis("20150301050637987"));
     }
 
     @Test
@@ -49,6 +49,18 @@ public class TimePointTest {
         assertEquals("20150301050559", _millis("201503010505", now, true));
         assertEquals("20150301050637", _millis("20150301050637", now, false));
         assertEquals("20150301050637", _millis("20150301050637", now, true));
+    }
+
+    static String _millis(String exp) {
+        return stringFrom(TimePoint.millis(exp));
+    }
+
+    static String _millis(String exp, long millis) {
+        return stringFrom(TimePoint.millis(exp, millis));
+    }
+
+    static String _millis(String exp, boolean end) {
+        return stringFrom(TimePoint.millis(exp, end));
     }
 
     static String _millis(String exp, String timeExpr, boolean end) {
