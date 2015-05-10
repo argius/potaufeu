@@ -1,29 +1,54 @@
 package potaufeu;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+import static potaufeu.TimePoint.millis;
 import java.text.*;
 import java.util.*;
-import org.junit.*;
+import junit.framework.*;
+import org.junit.Test;
 
 public class TimePointTest {
 
     @Test
+    public void testExceptions() {
+        assertEquals("java.lang.IllegalArgumentException: ", getExceptionAsString(() -> millis("")));
+        assertEquals("java.lang.IllegalArgumentException", getExceptionAsString(() -> millis(null)));
+        for (String s : new String[] { "1x", "20150" })
+            assertEquals("java.lang.IllegalArgumentException: bad format: " + s, getExceptionAsString(() -> millis(s)));
+    }
+
+    @Test
     public void testMillis() {
+        assertNotNull(new TimePoint());
+        assertEquals(1425153900000L, millis("201503010505"));
+        assertEquals(1425153900000L, millis("201503010505", 0L));
+        assertEquals(1425153959999L, millis("201503010505", true));
+        assertEquals(1425153997987L, millis("20150301050637987"));
+    }
+
+    @Test
+    public void testMillis_2() {
         final String now = "20150327123456";
         assertEquals("20150324123456", _millis("3d", now, false));
         assertEquals("20150325123455", _millis("3d", now, true));
         assertEquals("20150326233456", _millis("13h", now, false));
         assertEquals("20150327003455", _millis("13h", now, true));
-        assertEquals("20150301050500", _millis("201503010505", now, false));
-        assertEquals("20150301050559", _millis("201503010505", now, true));
-        assertEquals("20150301120000", _millis("2015030112", now, false));
-        assertEquals("20150301125959", _millis("2015030112", now, true));
+        assertEquals("20150327120756", _millis("27m", now, false));
+        assertEquals("20150327120855", _millis("27m", now, true));
+        assertEquals("20150327123417", _millis("39s", now, false));
+        assertEquals("20150327123417", _millis("39s", now, true));
+        assertEquals("20150101000000", _millis("2015", now, false));
+        assertEquals("20151231235959", _millis("2015", now, true));
+        assertEquals("20150301000000", _millis("201503", now, false));
+        assertEquals("20150331235959", _millis("201503", now, true));
         assertEquals("20150301000000", _millis("20150301", now, false));
         assertEquals("20150301235959", _millis("20150301", now, true));
-        assertEquals("20150101000000", _millis("2015", now, false));
-        assertEquals("20151231235959", _millis("2015", now, true));
-        assertEquals("20150101000000", _millis("2015", now, false));
-        assertEquals("20151231235959", _millis("2015", now, true));
+        assertEquals("20150301120000", _millis("2015030112", now, false));
+        assertEquals("20150301125959", _millis("2015030112", now, true));
+        assertEquals("20150301050500", _millis("201503010505", now, false));
+        assertEquals("20150301050559", _millis("201503010505", now, true));
+        assertEquals("20150301050637", _millis("20150301050637", now, false));
+        assertEquals("20150301050637", _millis("20150301050637", now, true));
     }
 
     static String _millis(String exp, String timeExpr, boolean end) {
@@ -42,6 +67,15 @@ public class TimePointTest {
     static String stringFrom(long millis) {
         DateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
         return df.format(new Date(millis));
+    }
+
+    static String getExceptionAsString(Runnable action) {
+        try {
+            action.run();
+            throw new AssertionFailedError();
+        } catch (Exception e) {
+            return e.toString();
+        }
     }
 
 }

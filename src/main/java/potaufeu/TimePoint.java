@@ -88,25 +88,31 @@ public final class TimePoint {
     }
 
     static long parseAbsoluteTime(String s, boolean end) {
-        final int length = s.length();
-        final ChronoUnit unit = length2ChronoUnit(length);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format.substring(0, length));
-        LocalDateTime local;
-        switch (unit) {
-            case YEARS:
-                local = Year.parse(s, formatter).atMonth(1).atDay(1).atStartOfDay();
-                break;
-            case MONTHS:
-                local = YearMonth.parse(s, formatter).atDay(1).atStartOfDay();
-                break;
-            case DAYS:
-                local = LocalDate.parse(s, formatter).atStartOfDay();
-                break;
-            default:
-                local = LocalDateTime.parse(s, formatter);
-        }
+        final ChronoUnit unit = length2ChronoUnit(s.length());
+        LocalDateTime local = parseAbsoluteTime0(s, unit);
         LocalDateTime result = (end) ? local.plus(1, unit).minusNanos(1_000L) : local;
         return result.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+    }
+
+    private static LocalDateTime parseAbsoluteTime0(String s, ChronoUnit unit) {
+        if (unit == MILLIS) {
+            // irregular
+            final int i = 8;
+            LocalDate date = LocalDate.parse(s.substring(0, i), DateTimeFormatter.BASIC_ISO_DATE);
+            LocalTime time = LocalTime.parse(s.substring(i), DateTimeFormatter.ofPattern(format.substring(i)));
+            return date.atTime(time);
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format.substring(0, s.length()));
+        switch (unit) {
+            case YEARS:
+                return Year.parse(s, formatter).atMonth(1).atDay(1).atStartOfDay();
+            case MONTHS:
+                return YearMonth.parse(s, formatter).atDay(1).atStartOfDay();
+            case DAYS:
+                return LocalDate.parse(s, formatter).atStartOfDay();
+            default:
+                return LocalDateTime.parse(s, formatter);
+        }
     }
 
     private static ChronoUnit length2ChronoUnit(int length) {
