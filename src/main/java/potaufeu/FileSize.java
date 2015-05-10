@@ -34,46 +34,23 @@ public final class FileSize {
             return Long.parseLong(expr);
         if (expr.matches("(\\d+|\\d+\\.\\d+)\\w"))
             return toByteSize(expr, expr.length() - 1);
-        if (expr.matches("(\\d+|\\d+\\.\\d+)\\w\\w"))
+        if (expr.matches("(\\d+|\\d+\\.\\d+)\\w[Bb]"))
             return toByteSize(expr, expr.length() - 2);
         throw new IllegalArgumentException("invalid filesize expression: " + expr);
     }
 
     private static long toByteSize(String expr, int indexOfUnit) {
         final double decimal = Double.parseDouble(expr.substring(0, indexOfUnit));
-        final int scale = getScale(expr.substring(indexOfUnit));
-        return (long)(decimal * Math.pow(1_024L, scale));
+        final int index = "KMGTPEZY".indexOf(Character.toUpperCase(expr.charAt(indexOfUnit)));
+        if (index < 0)
+            throw new IllegalArgumentException("invalid filesize expression: " + expr);
+        final int scale = index + 1;
+        return (long) (decimal * Math.pow(1_024L, scale));
     }
 
-    private static int getScale(String unit) {
-        switch (unit.toUpperCase()) {
-            case "K":
-            case "KB":
-                return 1;
-            case "M":
-            case "MB":
-                return 2;
-            case "G":
-            case "GB":
-                return 3;
-            case "T":
-            case "TB":
-                return 4;
-            case "P":
-            case "PB":
-                return 5;
-            case "E":
-            case "EB":
-                return 6;
-            case "Z":
-            case "ZB":
-                return 7;
-            case "Y":
-            case "YB":
-                return 8;
-            default:
-        }
-        throw new IllegalArgumentException("invalid unit: " + unit);
+    @Override
+    public String toString() {
+        return "FileSize(" + expr + ")";
     }
 
 }
