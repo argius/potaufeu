@@ -133,7 +133,7 @@ public final class App {
     private Predicate<Path> integratedFilter(OptionSet opts) {
         List<FileFilter> a = new ArrayList<>();
         a.addAll(FileFilterFactory.nameFilters(opts));
-        a.addAll(FileFilterFactory.extensionFilters(opts));
+        FileFilterFactory.extensionFilters(opts).ifPresent(a::add);
         a.addAll(FileFilterFactory.exclusionFilters(opts));
         a.addAll(FileFilterFactory.pathFilters(opts));
         a.addAll(FileFilterFactory.fileTypeFilters(opts));

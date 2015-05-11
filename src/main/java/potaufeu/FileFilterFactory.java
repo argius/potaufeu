@@ -14,6 +14,9 @@ public final class FileFilterFactory {
 
     private static final Log log = Log.logger(FileFilterFactory.class);
 
+    private FileFilterFactory() {
+    }
+
     public static List<FileFilter> toFileFilters(List<String> patterns, Function<String, FileFilter> mapper) {
         return patterns.stream().map(mapper).collect(Collectors.toList());
     }
@@ -38,26 +41,24 @@ public final class FileFilterFactory {
         return file -> file.getName().contains(pattern);
     }
 
-    public static List<FileFilter> extensionFilters(OptionSet opts) {
-        log.debug(() -> "extensionFilters: pattern=<" + opts.getExtensionPatterns() + ">");
-        List<FileFilter> a = new ArrayList<>();
-        List<String> patterns = opts.getExtensionPatterns();
-        final int size = patterns.size();
-        if (size > 1) {
-            final String pattern = String.format("(?i).*\\.(%s)", String.join("|", patterns));
-            a.add(file -> file.getName().matches(pattern));
-        }
-        else if (size == 1) {
-            final String pattern = "(?i).*\\." + patterns.get(0);
-            a.add(file -> file.getName().matches(pattern));
-        }
-        return a;
+    public static Optional<FileFilter> extensionFilters(OptionSet opts) {
+        return extensionFilter(opts.getExtensionPatterns());
     }
 
-    public static FileFilter extensionFilter(String pattern) {
-        log.debug(() -> "extensionFilter: pattern=<" + pattern + ">");
-        final String ptn = "(?i).*\\." + pattern;
-        return file -> file.getName().matches(ptn);
+    public static Optional<FileFilter> extensionFilter(String... patterns) {
+        return extensionFilter(Arrays.asList(patterns));
+    }
+
+    static Optional<FileFilter> extensionFilter(List<String> patterns) {
+        log.debug(() -> "extensionFilter(plural): pattern=<" + patterns + ">");
+        if (patterns.isEmpty())
+            return Optional.empty();
+        final String pattern;
+        if (patterns.size() == 1)
+            pattern = "(?i).*\\." + patterns.get(0);
+        else
+            pattern = String.format("(?i).*\\.(%s)", String.join("|", patterns));
+        return Optional.of(file -> file.getName().matches(pattern));
     }
 
     public static List<FileFilter> pathFilters(OptionSet opts) {
@@ -94,19 +95,17 @@ public final class FileFilterFactory {
             log.debug(() -> "added file size filter: " + min + " <= x");
             return file -> min <= file.length();
         }
-        else {
-            final int index = pattern.indexOf('-');
-            assert index >= 1;
-            final long min = FileSize.toByteSize(pattern.substring(0, index));
-            final long max = FileSize.toByteSize(pattern.substring(index + 1, pattern.length()));
-            if (min > max)
-                throw new IllegalArgumentException("min > max: " + pattern);
-            log.debug(() -> "added file size filter: " + min + " <= x <= " + max);
-            return file -> {
-                long size = file.length();
-                return min <= size && size <= max;
-            };
-        }
+        final int index = pattern.indexOf('-');
+        assert index > 0;
+        final long min = FileSize.toByteSize(pattern.substring(0, index));
+        final long max = FileSize.toByteSize(pattern.substring(index + 1, pattern.length()));
+        if (min > max)
+            throw new IllegalArgumentException("min > max: " + pattern);
+        log.debug(() -> "added file size filter: " + min + " <= x <= " + max);
+        return file -> {
+            long size = file.length();
+            return min <= size && size <= max;
+        };
     }
 
     public static List<FileFilter> ctimeFilters(OptionSet opts) {
@@ -139,7 +138,7 @@ public final class FileFilterFactory {
             };
         }
         else if (pattern.endsWith("-")) {
-            final long min = TimePoint.millis(pattern, now);
+            final long min = TimePoint.millis(pattern.substring(0, pattern.length() - 1), now);
             log.debug(() -> prefix + toDateTime(min) + " <= x");
             return file -> min <= f2millis.applyAsLong(file);
         }
@@ -149,7 +148,7 @@ public final class FileFilterFactory {
             return file -> f2millis.applyAsLong(file) <= max;
         }
         final int index = pattern.indexOf('-');
-        assert index >= 1;
+        assert index > 0;
         final long min = TimePoint.millis(pattern.substring(0, index), now);
         final long max = TimePoint.millis(pattern.substring(index + 1, pattern.length()), now, true);
         if (min > max)
