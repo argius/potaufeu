@@ -13,6 +13,8 @@ Download
 
 Download the latest Jar file from the release page in GitHub.
 
+https://github.com/argius/potaufeu/releases
+
 
 
 Usage
