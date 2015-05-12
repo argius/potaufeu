@@ -9,6 +9,7 @@ import java.util.stream.*;
 public final class StreamOperation<T> implements Iterable<T> {
 
     private Stream<T> stream;
+    private boolean verbose;
 
     public StreamOperation(Stream<T> stream) {
         this.stream = stream;
@@ -25,6 +26,11 @@ public final class StreamOperation<T> implements Iterable<T> {
 
     public Stream<T> getStream() {
         return stream;
+    }
+
+    public StreamOperation<T> verbose(boolean verbose) {
+        this.verbose = verbose;
+        return this;
     }
 
     public StreamOperation<T> peek(Consumer<? super T> action) {
@@ -44,8 +50,12 @@ public final class StreamOperation<T> implements Iterable<T> {
 
     public StreamOperation<T> head(OptionalInt optCount) {
         optCount.ifPresent(count -> {
-            AtomicInteger limitCount = new AtomicInteger(count);
-            stream = stream.filter(x -> limitCount.decrementAndGet() >= 0);
+            if (verbose) {
+                AtomicInteger limitCount = new AtomicInteger(count);
+                stream = stream.filter(x -> limitCount.decrementAndGet() >= 0);
+            }
+            else
+                stream = stream.limit(count);
         });
         return this;
     }

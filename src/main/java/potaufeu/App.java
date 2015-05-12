@@ -52,8 +52,8 @@ public final class App {
     long filterPaths(Stream<Path> stream, OptionSet opts) {
         Sampler sampler = new Sampler(opts);
         Consumer<Path> terminalOp = TerminalOperation.with(out, opts);
-        StreamOperation.of(stream).sorted(PathSorter.getSorter(opts.getSortKeys())).sequential()
-                .peek(sampler).head(opts.getHeadCount()).tail(opts.getTailCount()).forEach(terminalOp);
+        StreamOperation.of(stream).verbose(opts.isVerbose()).sorted(PathSorter.getSorter(opts.getSortKeys()))
+                .sequential().peek(sampler).head(opts.getHeadCount()).tail(opts.getTailCount()).forEach(terminalOp);
         if (sampler.isResultRecorded)
             if (sampler.getResult().matchedCount() == 0)
                 out.println(message("i.notFound"));
@@ -159,13 +159,8 @@ public final class App {
             // TODO add depth filter
             return state.getFirstResult().pathStream().parallel();
         }
-        Path startDir = Paths.get("");
-        try {
-            return Files.find(startDir, opts.getMaxDepth().orElse(Integer.MAX_VALUE), (path, attr) -> true).peek(
-                path -> count.increment());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        final int maxDepth = opts.getMaxDepth().orElse(Integer.MAX_VALUE);
+        return PathIterator.streamOf(opts.getRootPath(), maxDepth).peek(path -> count.increment());
     }
 
     static String version() {
