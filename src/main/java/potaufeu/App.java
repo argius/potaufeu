@@ -85,11 +85,13 @@ public final class App {
         List<String> patterns = opts.getGrepPatterns();
         int patternSize = patterns.size();
         Predicate<Path> grepFilter = path -> {
-            try {
-                List<String> lines = Files.readAllLines(path);
+            try (BufferedReader r = Files.newBufferedReader(path)) {
                 List<FileLine> fileLines = new ArrayList<>();
                 int i = 0;
-                for (String line : lines) {
+                while (true) {
+                    String line = r.readLine();
+                    if (line == null)
+                        break;
                     ++i;
                     int c = 0;
                     for (String ptn : patterns)
