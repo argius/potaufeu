@@ -165,6 +165,14 @@ public final class App {
         return PathIterator.streamOf(opts.getRootPath(), maxDepth).peek(path -> count.increment());
     }
 
+    void showHelp() {
+        HelpFormatter hf = new HelpFormatter();
+        String usage = message("i.usage");
+        String header = message("help.header");
+        String footer = message("help.footer");
+        hf.printHelp(out, 80, usage, header, new OptionSet.Parser().getOptions(), 2, 2, footer, true);
+    }
+
     static String version() {
         StringBuilder sb = new StringBuilder();
         sb.append(message(".productName")).append(" version ");
@@ -200,7 +208,10 @@ public final class App {
                 else
                     try {
                         OptionSet opts = new OptionSet.Parser().parse(line.split(" "));
-                        find(opts, true);
+                        if (opts.isHelp())
+                            showHelp();
+                        else
+                            find(opts, true);
                     } catch (Exception e) {
                         out.println(message("e.0", e.getMessage()));
                     }
@@ -220,13 +231,15 @@ public final class App {
             log.info(() -> "opts=" + ReflectionToStringBuilder.toString(opts, ToStringStyle.SHORT_PREFIX_STYLE));
             if (opts.isShowVersion())
                 System.out.println(version());
-            else if (opts.isHelp())
-                new HelpFormatter().printHelp(message("i.usage"), parser.getOptions());
             else {
                 App app = new App();
-                app.find(opts, false);
-                if (opts.isState())
-                    app.loop();
+                if (opts.isHelp())
+                    app.showHelp();
+                else {
+                    app.find(opts, false);
+                    if (opts.isState())
+                        app.loop();
+                }
             }
         } catch (Throwable e) {
             log.error(() -> "(main)", e);
