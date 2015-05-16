@@ -25,7 +25,7 @@ public final class App {
         this.out = new PrintWriter(System.out, true);
     }
 
-    void find(OptionSet opts, boolean inLoop) {
+    void find(OptionSet opts) {
         final String methodName = "find";
         log.info(() -> methodName + " start");
         final boolean verbose = opts.isVerbose();
@@ -34,7 +34,7 @@ public final class App {
         log.info(() -> "preparation");
         LongAdder count = new LongAdder();
         Predicate<Path> filter = integratedFilter(opts);
-        Stream<Path> stream = createStream(opts, inLoop, count).filter(filter);
+        Stream<Path> stream = createStream(opts, count).filter(filter);
         log.info(() -> "running");
         final long startTime = System.currentTimeMillis();
         final long matchedCount;
@@ -50,7 +50,9 @@ public final class App {
     }
 
     long filterPaths(Stream<Path> stream, OptionSet opts) {
-        Sampler sampler = new Sampler(opts);
+        boolean createsResult = opts.isState() || !state.existsResult();
+        boolean measuresCount = opts.isVerbose();
+        Sampler sampler = new Sampler(createsResult, measuresCount);
         Consumer<Path> terminalOp = TerminalOperation.with(out, opts);
         StreamOperation.of(stream).verbose(opts.isVerbose()).sorted(PathSorter.getSorter(opts.getSortKeys()))
                 .sequential().peek(sampler).head(opts.getHeadCount()).tail(opts.getTailCount()).forEach(terminalOp);
@@ -155,8 +157,8 @@ public final class App {
         };
     }
 
-    Stream<Path> createStream(OptionSet opts, boolean inLoop, LongAdder count) {
-        if (!opts.isState() & inLoop && state.existsResult()) {
+    Stream<Path> createStream(OptionSet opts, LongAdder count) {
+        if (!opts.isState() && state.existsResult()) {
             count.add(state.getFirstResult().matchedCount());
             // TODO add depth filter
             return state.getFirstResult().pathStream().parallel();
@@ -165,7 +167,7 @@ public final class App {
         return PathIterator.streamOf(opts.getRootPath(), maxDepth).peek(path -> count.increment());
     }
 
-    void showHelp() {
+    public void showHelp() {
         HelpFormatter hf = new HelpFormatter();
         String usage = message("i.usage");
         String header = message("help.header");
@@ -173,7 +175,7 @@ public final class App {
         hf.printHelp(out, 80, usage, header, new OptionSet.Parser().getOptions(), 2, 2, footer, true);
     }
 
-    static String version() {
+    public static String version() {
         StringBuilder sb = new StringBuilder();
         sb.append(message(".productName")).append(" version ");
         try (InputStream is = App.class.getResourceAsStream("version")) {
@@ -188,59 +190,61 @@ public final class App {
         return sb.toString();
     }
 
-    void loop() {
+    public void startInteraction() {
+        ConsoleReader cr;
         try {
-            ConsoleReader cr = new ConsoleReader();
-            cr.setBellEnabled(false);
-            cr.setPrompt("> ");
-            this.out = new PrintWriter(cr.getOutput(), true);
-            out.println(version());
+            cr = new ConsoleReader();
+        } catch (IOException e) {
+            log.error(() -> "(new ConsoleReader)", e);
+            out.println(message("e.0", e.getMessage()));
+            return;
+        }
+        cr.setBellEnabled(false);
+        cr.setPrompt("> ");
+        this.out = new PrintWriter(cr.getOutput(), true);
+        out.println(version());
+        try {
             while (true) {
                 final String line = cr.readLine();
                 if (line == null || line.matches("(exit|quit)"))
                     break;
-                if (line.equals("cls"))
-                    cr.clearScreen();
                 else if (line.trim().isEmpty())
-                    out.printf("%s %s%n", message("i.usagePrefix"), message("i.usageInLoop"));
+                    continue; // do nothing
+                else if (line.equals("cls"))
+                    cr.clearScreen();
                 else if (line.matches("\\s*:.*"))
                     state.controlBy(out, line);
                 else
                     try {
-                        OptionSet opts = new OptionSet.Parser().parse(line.split(" "));
-                        if (opts.isHelp())
-                            showHelp();
-                        else
-                            find(opts, true);
+                        runCommand(OptionSet.parseArguments(line.split(" ")));
                     } catch (Exception e) {
-                        out.println(message("e.0", e.getMessage()));
+                        log.warn(() -> "", e);
                     }
             }
         } catch (IOException e) {
-            log.error(() -> "(new ConsoleReader)", e);
-            out.println(message("e.0", e.getMessage()));
+            log.error(() -> "(while)", e);
         }
+    }
+
+    public void runCommand(OptionSet opts) {
+        if (opts.isShowVersion())
+            out.println(version());
+        else if (opts.isHelp())
+            showHelp();
+        else
+            find(opts);
     }
 
     public static void main(String[] args) {
         log.info(() -> "start (version: " + version() + ")");
         log.debug(() -> "args=" + Arrays.asList(args));
         try {
-            OptionSet.Parser parser = new OptionSet.Parser();
-            OptionSet opts = parser.parse(args);
+            OptionSet opts = OptionSet.parseArguments(args);
             log.info(() -> "opts=" + ReflectionToStringBuilder.toString(opts, ToStringStyle.SHORT_PREFIX_STYLE));
-            if (opts.isShowVersion())
-                System.out.println(version());
-            else {
-                App app = new App();
-                if (opts.isHelp())
-                    app.showHelp();
-                else {
-                    app.find(opts, false);
-                    if (opts.isState())
-                        app.loop();
-                }
-            }
+            App app = new App();
+            app.runCommand(opts);
+            if (opts.isState())
+                app.startInteraction();
         } catch (Throwable e) {
             log.error(() -> "(main)", e);
             System.out.println(message("e.0", e.getMessage()));

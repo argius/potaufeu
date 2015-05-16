@@ -48,6 +48,11 @@ public final class OptionSet {
         this.rootPath = Paths.get("");
     }
 
+    public static OptionSet parseArguments(String[] args) throws Exception {
+        OptionSet.Parser parser = new OptionSet.Parser();
+        return parser.parse(args);
+    }
+
     public Path getRootPath() {
         return rootPath;
     }

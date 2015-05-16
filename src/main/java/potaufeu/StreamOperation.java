@@ -85,16 +85,16 @@ public final class StreamOperation<T> implements Iterable<T> {
         private Result result;
         private LongAdder count;
 
-        Sampler(OptionSet opts) {
+        Sampler(boolean createsResult, boolean measuresCount) {
             final Consumer<Path> action;
             boolean doResultRecording = false;
             boolean doCount = false;
-            if (opts.isState()) {
+            if (createsResult) {
                 action = x -> getResult().addPath(x);
                 doResultRecording = true;
                 result = new Result();
             }
-            else if (opts.isVerbose()) {
+            else if (measuresCount) {
                 action = x -> getCount().increment();
                 doCount = true;
                 count = new LongAdder();
