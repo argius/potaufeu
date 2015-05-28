@@ -24,12 +24,12 @@ public final class VerboseMessages {
 
     public static String options(OptionSet opts) {
         return flatten(
-            Stream.of(format("quiet", opts.isQuiet()), format("full path", opts.isPrintsFullpath()),
-                format("list", opts.isPrintsList()), format("list-posix", opts.isPrintsPosixLikeList()),
-                format("list-detail", opts.isPrintsDetailList()), format("list-linecount", opts.isPrintsLineCount()),
-                format("sortkeys", opts.getSortKeys()), format("slash", opts.isSlash()),
-                format("head", opts.getHeadCount()), format("tail", opts.getTailCount()))).collect(
-            Collectors.joining(", "));
+            Stream.of(format("dir", opts.getDirectories()), format("quiet", opts.isQuiet()),
+                format("full path", opts.isPrintsFullpath()), format("list", opts.isPrintsList()),
+                format("list-posix", opts.isPrintsPosixLikeList()), format("list-detail", opts.isPrintsDetailList()),
+                format("list-linecount", opts.isPrintsLineCount()), format("sortkeys", opts.getSortKeys()),
+                format("slash", opts.isSlash()), format("head", opts.getHeadCount()),
+                format("tail", opts.getTailCount()))).collect(Collectors.joining(", "));
     }
 
     public static String end(long matchedCount, long allFileCount, long elapsed) {

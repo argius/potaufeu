@@ -16,6 +16,7 @@ public final class OptionSet {
 
     private final Path rootPath;
 
+    private List<String> directories;
     private List<String> pathPatterns;
     private List<String> extensionPatterns;
     private List<String> namePatterns;
@@ -55,6 +56,10 @@ public final class OptionSet {
 
     public Path getRootPath() {
         return rootPath;
+    }
+
+    public List<String> getDirectories() {
+        return directories;
     }
 
     public List<String> getPathPatterns() {
@@ -191,6 +196,7 @@ public final class OptionSet {
         private static final String OPTION_TAIL = "tail";
         private static final String OPTION_TAILS = "tails";
         // others
+        private static final String OPTION_DIR = "dir";
         private static final String OPTION_EXTENSIONS = "exts";
         private static final String OPTION_SORT = "sort";
         private static final String OPTION_SLASH = "slash";
@@ -211,6 +217,7 @@ public final class OptionSet {
             option(OPTION_ATIME, true);
             option(OPTION_FILE, "F");
             option(OPTION_GREP, "g", true);
+            option(OPTION_DIR, "d", true);
             option(OPTION_QUIET, "q");
             option(OPTION_FULLPATH);
             option(OPTION_LIST, "l");
@@ -247,6 +254,7 @@ public final class OptionSet {
             o.atimePatterns = stringValues(cl, OPTION_ATIME);
             o.file = bool(cl, OPTION_FILE);
             o.grepPatterns = stringValues(cl, OPTION_GREP);
+            o.directories = stringValues(cl, OPTION_DIR);
             o.quiet = bool(cl, OPTION_QUIET);
             o.printsFullpath = bool(cl, OPTION_FULLPATH);
             o.printsList = bool(cl, OPTION_LIST);
@@ -314,7 +322,7 @@ public final class OptionSet {
 
         static OptionalInt optIntValue(CommandLine cl, String optionKey, String optionKey2, int value2) {
             log.debug(() -> String.format("option: hasOption=%s, key=%s, value=%s, key2=%s, value2=%d",
-                    (cl.hasOption(optionKey) ? "T" : "F"), optionKey, cl.getOptionValue(optionKey), optionKey2, value2));
+                (cl.hasOption(optionKey) ? "T" : "F"), optionKey, cl.getOptionValue(optionKey), optionKey2, value2));
             OptionalInt v = optInt(cl, optionKey);
             if (v.isPresent())
                 return v;

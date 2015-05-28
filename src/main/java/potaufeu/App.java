@@ -159,13 +159,27 @@ public final class App {
     }
 
     Stream<Path> createStream(OptionSet opts, LongAdder count) {
+        final int maxDepth = opts.getMaxDepth().orElse(Integer.MAX_VALUE);
         if (!opts.isState() && state.existsResult()) {
             count.add(state.getFirstResult().matchedCount());
             // TODO add depth filter
             return state.getFirstResult().pathStream().parallel();
         }
-        final int maxDepth = opts.getMaxDepth().orElse(Integer.MAX_VALUE);
-        return PathIterator.streamOf(opts.getRootPath(), maxDepth).peek(path -> count.increment());
+        List<Path> dirs = new ArrayList<>();
+        for (String dirString : opts.getDirectories()) {
+            Path dir = Paths.get(dirString);
+            if (dirs.contains(dir))
+                System.err.println(message("w.duplicatedir", dirString));
+            else if (!Files.isDirectory(dir))
+                throw new IllegalArgumentException(message("e.noSuchDir", dirString));
+            else
+                dirs.add(dir);
+        }
+        Path firstDir = (dirs.isEmpty()) ? opts.getRootPath() : dirs.remove(0);
+        Stream<Path> stream = PathIterator.streamOf(firstDir, maxDepth);
+        for (Path dir : dirs)
+            stream = Stream.concat(stream, PathIterator.streamOf(dir, maxDepth));
+        return stream.peek(path -> count.increment());
     }
 
     public void showHelp() {
