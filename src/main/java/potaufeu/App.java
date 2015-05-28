@@ -112,9 +112,10 @@ public final class App {
                 return false;
             }
         };
+        Function<Path, String> path2s = TerminalOperation.path2s(opts);
         Consumer<Path> greppedAction = path -> {
             for (FileLine line : grepped.get(path))
-                out.printf("%s:%d:%s%n", path, line.number, line.text);
+                out.printf("%s:%d:%s%n", path2s.apply(path), line.number, line.text);
         };
         if (opts.isState()) {
             Result r = new Result();

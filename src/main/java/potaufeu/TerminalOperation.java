@@ -19,14 +19,7 @@ public interface TerminalOperation extends Consumer<Path> {
         if (opts.isQuiet())
             return x -> {
             };
-        Function<Path, String> path2s = (opts.isSlash()) ? path -> {
-            StringBuilder sb = new StringBuilder();
-            path.forEach(x -> sb.append('/').append(x));
-            sb.delete(0, 1);
-            if (path.isAbsolute())
-                sb.insert(0, path.getRoot().toString().replace('\\', '/'));
-            return sb.toString();
-        } : Path::toString;
+        Function<Path, String> path2s = path2s(opts);
         FileAttributePrinter pf = new FileAttributePrinter(out, EOL, path2s);
         if (opts.isPrintsFullpath())
             return pf.fullPath();
@@ -41,5 +34,15 @@ public interface TerminalOperation extends Consumer<Path> {
         return pf.path();
     }
 
+    public static Function<Path, String> path2s(OptionSet opts) {
+        return (opts.isSlash()) ? path -> {
+            StringBuilder sb = new StringBuilder();
+            path.forEach(x -> sb.append('/').append(x));
+            sb.delete(0, 1);
+            if (path.isAbsolute())
+                sb.insert(0, path.getRoot().toString().replace('\\', '/'));
+            return sb.toString();
+        } : Path::toString;
+    }
 
 }
