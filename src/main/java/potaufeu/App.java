@@ -162,10 +162,19 @@ public final class App {
     Stream<Path> createStream(OptionSet opts, LongAdder count) {
         final int maxDepth = opts.getMaxDepth().orElse(Integer.MAX_VALUE);
         if (!opts.isState() && state.existsResult()) {
+            // from cached result
+            log.debug(() -> "create stream from cached result");
             count.add(state.getFirstResult().matchedCount());
             // TODO add depth filter
             return state.getFirstResult().pathStream().parallel();
         }
+        if (isStdinAvailable()) {
+            // from stdin
+            log.debug(() -> "create stream from stdin");
+            return createPathStreamFromStdin();
+        }
+        // new path stream
+        log.debug(() -> "create new path stream");
         List<Path> dirs = new ArrayList<>();
         for (String dirString : opts.getDirectories()) {
             Path dir = Paths.get(dirString);
@@ -181,6 +190,25 @@ public final class App {
         for (Path dir : dirs)
             stream = Stream.concat(stream, PathIterator.streamOf(dir, maxDepth));
         return stream.peek(path -> count.increment());
+    }
+
+    @SuppressWarnings("resource")
+    private Stream<Path> createPathStreamFromStdin() {
+        // XXX trick for suppress warnings
+        Stream<String> pathStringStream =
+            StreamSupport.stream(Spliterators.spliteratorUnknownSize(new Scanner(System.in), 0), false);
+        return pathStringStream.map(Paths::get);
+    }
+
+    private static boolean isStdinAvailable() {
+        try {
+            int stdinAvailable = System.in.available();
+            log.debug(() -> "stdinAvailable=" + stdinAvailable);
+            return stdinAvailable > 0;
+        } catch (IOException e) {
+            log.warn(() -> "", e);
+        }
+        return false;
     }
 
     public void showHelp() {
