@@ -27,6 +27,7 @@ public final class OptionSet {
     private List<String> atimePatterns;
     private List<String> grepPatterns;
     private boolean file;
+    private boolean text;
     private boolean quiet;
     private boolean printsFullpath;
     private boolean printsList;
@@ -100,6 +101,10 @@ public final class OptionSet {
 
     public boolean isFile() {
         return file;
+    }
+
+    public boolean isText() {
+        return text;
     }
 
     public boolean isQuiet() {
@@ -181,6 +186,7 @@ public final class OptionSet {
         private static final String OPTION_MTIME = "mtime";
         private static final String OPTION_ATIME = "atime";
         private static final String OPTION_FILE = "file";
+        private static final String OPTION_TEXT = "text";
         private static final String OPTION_GREP = "grep";
         // outputs
         private static final String OPTION_QUIET = "quiet";
@@ -216,6 +222,7 @@ public final class OptionSet {
             option(OPTION_MTIME, "t", true);
             option(OPTION_ATIME, true);
             option(OPTION_FILE, "F");
+            option(OPTION_TEXT, "T");
             option(OPTION_GREP, "g", true);
             option(OPTION_DIR, "d", true);
             option(OPTION_QUIET, "q");
@@ -253,6 +260,7 @@ public final class OptionSet {
             o.mtimePatterns = stringValues(cl, OPTION_MTIME);
             o.atimePatterns = stringValues(cl, OPTION_ATIME);
             o.file = bool(cl, OPTION_FILE);
+            o.text = bool(cl, OPTION_TEXT);
             o.grepPatterns = stringValues(cl, OPTION_GREP);
             o.directories = stringValues(cl, OPTION_DIR);
             o.quiet = bool(cl, OPTION_QUIET);

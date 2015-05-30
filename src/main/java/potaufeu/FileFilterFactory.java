@@ -1,6 +1,7 @@
 package potaufeu;
 
 import java.io.*;
+import java.nio.file.*;
 import java.time.*;
 import java.util.*;
 import java.util.function.*;
@@ -76,6 +77,29 @@ public final class FileFilterFactory {
         if (opts.isFile())
             a.add(file -> file.isFile());
         return a;
+    }
+
+    public static List<FileFilter> fileContentTypeFilters(OptionSet opts) {
+        List<FileFilter> a = new ArrayList<>();
+        if (opts.isText())
+            a.add(file -> isText(file));
+        return a;
+    }
+
+    private static boolean isText(File file) {
+        if (!file.isFile())
+            return false;
+        // TODO experimental
+        try (Stream<String> stream = Files.lines(file.toPath())) {
+            @SuppressWarnings("unused")
+            long n = stream.limit(4096).count();
+            return true;
+        } catch (UncheckedIOException e) {
+            // ignore
+        } catch (Exception e) {
+            System.err.printf("warning: %s at isText, file=%s%n", e, file);
+        }
+        return false;
     }
 
     public static List<FileFilter> fileSizeFilters(OptionSet opts) {

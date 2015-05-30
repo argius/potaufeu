@@ -146,6 +146,7 @@ public final class App {
         a.addAll(FileFilterFactory.ctimeFilters(opts));
         a.addAll(FileFilterFactory.mtimeFilters(opts));
         a.addAll(FileFilterFactory.atimeFilters(opts));
+        a.addAll(FileFilterFactory.fileContentTypeFilters(opts));
         return x -> {
             // XXX why path stream contains null ?
             if (x == null)

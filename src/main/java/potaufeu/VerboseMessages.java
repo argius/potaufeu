@@ -19,7 +19,8 @@ public final class VerboseMessages {
                 format("name", opts.getNamePatterns()), format("exclude", opts.getExclusionPatterns()),
                 format("size", opts.getFileSizePatterns()), format("ctime", opts.getCtimePatterns()),
                 format("mtime", opts.getMtimePatterns()), format("atime", opts.getAtimePatterns()),
-                format("file only", opts.isFile()))).collect(Collectors.joining(", "));
+                format("file only", opts.isFile()), format("text file", opts.isText()))).collect(
+            Collectors.joining(", "));
     }
 
     public static String options(OptionSet opts) {
