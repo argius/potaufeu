@@ -136,24 +136,23 @@ public final class App {
     }
 
     private Predicate<Path> integratedFilter(OptionSet opts) {
-        List<FileFilter> a = new ArrayList<>();
-        a.addAll(FileFilterFactory.nameFilters(opts));
-        FileFilterFactory.extensionFilters(opts).ifPresent(a::add);
-        a.addAll(FileFilterFactory.exclusionFilters(opts));
-        a.addAll(FileFilterFactory.pathFilters(opts));
-        a.addAll(FileFilterFactory.fileTypeFilters(opts));
-        a.addAll(FileFilterFactory.fileSizeFilters(opts));
-        a.addAll(FileFilterFactory.ctimeFilters(opts));
-        a.addAll(FileFilterFactory.mtimeFilters(opts));
-        a.addAll(FileFilterFactory.atimeFilters(opts));
-        a.addAll(FileFilterFactory.fileContentTypeFilters(opts));
+        List<PathMatcher> a = new ArrayList<>();
+        a.addAll(PathMatcherFactory.nameMatchers(opts));
+        PathMatcherFactory.extensionMatchers(opts).ifPresent(a::add);
+        a.addAll(PathMatcherFactory.exclusionMatchers(opts));
+        a.addAll(PathMatcherFactory.pathMatchers(opts));
+        a.addAll(PathMatcherFactory.fileTypeMatchers(opts));
+        a.addAll(PathMatcherFactory.fileSizeMatchers(opts));
+        a.addAll(PathMatcherFactory.ctimeMatchers(opts));
+        a.addAll(PathMatcherFactory.mtimeMatchers(opts));
+        a.addAll(PathMatcherFactory.atimeMatchers(opts));
+        a.addAll(PathMatcherFactory.fileContentTypeMatchers(opts));
         return x -> {
             // XXX why path stream contains null ?
             if (x == null)
                 return false;
-            File f = x.toFile();
-            for (FileFilter filter : a)
-                if (!filter.accept(f))
+            for (PathMatcher matcher : a)
+                if (!matcher.matches(x))
                     return false;
             return true;
         };

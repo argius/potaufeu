@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.rules.*;
 import potaufeu.OptionSet.Parser;
 
+@SuppressWarnings("deprecation")
 public final class FileFilterFactoryTest {
 
     @Rule

@@ -10,7 +10,9 @@ import java.util.stream.*;
 /**
  * The factory class for this app's file filters.
  * @see {java.io.FileFilter}
+ * @deprecated Use {@link PathMatcherFactory} instead.
  */
+@Deprecated()
 public final class FileFilterFactory {
 
     private static final Log log = Log.logger(FileFilterFactory.class);
