@@ -1,6 +1,7 @@
 package potaufeu;
 
 import static potaufeu.Messages.message;
+import static potaufeu.PackagePrivate.asPrintWriter;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
@@ -22,7 +23,7 @@ public final class App {
 
     public App() {
         this.state = new State();
-        this.out = new PrintWriter(System.out, true);
+        this.out = asPrintWriter(System.out);
     }
 
     void find(OptionSet opts) {

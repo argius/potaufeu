@@ -1,10 +1,12 @@
 package potaufeu;
 
+import java.io.*;
 import java.util.*;
 import java.util.stream.*;
 
 /**
  * A class has package-private methods.
+ * The methods in this class may be always removed.
  */
 final class PackagePrivate {
 
@@ -23,6 +25,10 @@ final class PackagePrivate {
             opt.ifPresent(x -> a.add(x));
             return a.stream();
         });
+    }
+
+    static PrintWriter asPrintWriter(PrintStream ps) {
+        return new PrintWriter(ps, true);
     }
 
 }
