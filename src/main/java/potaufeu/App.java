@@ -290,7 +290,7 @@ public final class App {
                 app.startInteraction();
         } catch (Throwable e) {
             log.error(() -> "(main)", e);
-            System.out.println(message("e.0", e.getMessage()));
+            System.err.println(message("e.0", e.getMessage()));
         }
         log.info(() -> "end");
     }
