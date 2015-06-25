@@ -64,8 +64,10 @@ final class PathIterator implements Iterator<Path> {
         final String msg;
         if (e instanceof AccessDeniedException)
             msg = "access denied";
+        else if (e instanceof NoSuchFileException)
+            msg = "no such file or directory";
         else
-            msg = e.getMessage();
+            msg = String.format("%s (%s)", e.getMessage(), e.getClass().getSimpleName());
         System.err.printf("potf: '%s': %s%n", path, msg);
     }
 
