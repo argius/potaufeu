@@ -231,7 +231,7 @@ public final class OptionSet {
             option(OPTION_LIST_POSIX, "L");
             option(OPTION_LIST_DETAIL);
             option(OPTION_LIST_LINES);
-            option(OPTION_DEPTH);
+            option(OPTION_DEPTH, true);
             option(OPTION_HEAD, true);
             option(OPTION_HEADS);
             option(OPTION_TAIL, true);
