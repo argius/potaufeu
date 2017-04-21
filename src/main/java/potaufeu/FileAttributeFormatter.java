@@ -222,6 +222,11 @@ public final class FileAttributeFormatter {
 
     static BasicFileAttributes readBasicAttributes(Path path) {
         try {
+            try {
+                return Files.readAttributes(path, PosixFileAttributes.class);
+            } catch (UnsupportedOperationException e) {
+                // ignore
+            }
             return Files.readAttributes(path, BasicFileAttributes.class);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
