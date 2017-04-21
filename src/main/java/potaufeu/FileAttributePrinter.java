@@ -56,7 +56,7 @@ public final class FileAttributePrinter {
     }
 
     public TerminalOperation posixLikeList() {
-        final String fmt = "%s%s%s %s %s%s %s %s" + eol;
+        final String fmt = "%s%s%s%2s %s%s %s %s" + eol;
         return x -> {
             FileAttributeFormatter u = new FileAttributeFormatter(x);
             u.setFileSizeFormatter(sz -> String.format("%8d", sz));
@@ -93,7 +93,8 @@ public final class FileAttributePrinter {
     private static String formatPosixLikeDateTime(FileTime ft) {
         LocalDateTime dt = LocalDateTime.ofInstant(ft.toInstant(), ZoneId.systemDefault());
         DateTimeFormatter dtf = (dt.isBefore(LocalDateTime.now().minusMonths(6))) ? dtf2 : dtf1;
-        return String.format("%11s", dt.format(dtf));
+        // FIXME adhoc date format
+        return String.format("%11s", dt.format(dtf)).replace(" 0", "  ");
     }
 
 }
