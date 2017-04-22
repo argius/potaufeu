@@ -8,11 +8,11 @@ import java.nio.file.*;
 import java.nio.file.attribute.*;
 import java.util.*;
 import java.util.function.*;
-import junit.framework.*;
 import org.junit.*;
 import org.junit.Test;
 import org.junit.rules.*;
-import potaufeu.OptionSet.Parser;
+import junit.framework.*;
+import potaufeu.OptionSet.*;
 
 public final class PathMatcherFactoryTest {
 

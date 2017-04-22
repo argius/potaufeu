@@ -4,8 +4,8 @@ import static org.junit.Assert.*;
 import static potaufeu.TimePoint.millis;
 import java.text.*;
 import java.util.*;
-import junit.framework.*;
 import org.junit.Test;
+import junit.framework.*;
 
 public class TimePointTest {
 

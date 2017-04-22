@@ -8,11 +8,11 @@ import java.util.*;
 import java.util.concurrent.atomic.*;
 import java.util.function.*;
 import java.util.stream.*;
-import jline.console.*;
 import org.apache.commons.cli.*;
 import org.apache.commons.io.*;
 import org.apache.commons.lang3.builder.*;
-import potaufeu.StreamOperation.Sampler;
+import jline.console.*;
+import potaufeu.StreamOperation.*;
 
 public final class App {
 

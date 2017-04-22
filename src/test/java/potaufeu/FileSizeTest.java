@@ -3,8 +3,8 @@ package potaufeu;
 import static org.junit.Assert.assertEquals;
 import static potaufeu.FileSize.toByteSize;
 import java.util.function.*;
-import junit.framework.*;
 import org.junit.Test;
+import junit.framework.*;
 
 public class FileSizeTest {
 

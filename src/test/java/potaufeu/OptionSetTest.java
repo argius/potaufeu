@@ -2,7 +2,7 @@ package potaufeu;
 
 import static org.junit.Assert.assertEquals;
 import org.junit.*;
-import potaufeu.OptionSet.Parser;
+import potaufeu.OptionSet.*;
 
 public class OptionSetTest {
 
