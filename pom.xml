@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>potaufeu</groupId>
   <artifactId>potaufeu</artifactId>
-  <version>1.0.0-beta4-SNAPSHOT</version>
+  <version>1.0.0-beta4</version>
   <dependencies>
     <dependency>
       <groupId>junit</groupId>
