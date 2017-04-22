@@ -1,0 +1,37 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'application'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'commons-cli:commons-cli:1.2'
+    compile 'jline:jline:2.12.1'
+    compile 'commons-io:commons-io:2.4'
+    compile 'org.apache.commons:commons-lang3:3.1'
+    compile 'org.slf4j:slf4j-api:1.7.25'
+    compile 'org.slf4j:slf4j-nop:1.7.25'
+    testCompile 'ch.qos.logback:logback-core:1.1.2'
+    testCompile 'ch.qos.logback:logback-classic:1.1.2'
+    testCompile 'junit:junit:4.11'
+    testCompile 'org.hamcrest:hamcrest-junit:2.0.0.0'
+}
+
+version  = '1.0.0-beta5-SNAPSHOT'
+
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+jar {
+    baseName = 'potaufeu'
+    mainClassName = baseName + '.App'
+    manifest {
+        attributes 'Main-Class' : mainClassName
+    }
+    from configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    doLast {
+        file('$destinationDir/$archiveName').renameTo('$destinationDir/$baseName-$version.jar')
+    }
+}

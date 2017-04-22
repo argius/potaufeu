@@ -10,4 +10,4 @@ branches:
     - master
     - develop
 
-script: mvn test
+script: ./gradlew test
