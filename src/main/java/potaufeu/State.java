@@ -180,7 +180,6 @@ final class State {
         return defaultValue;
     }
 
-    @SuppressWarnings("unused")
     private static final class Parameter {
 
         private final String string;
@@ -193,7 +192,7 @@ final class State {
             this.indices = indices;
         }
 
-        public static Parameter parse(String string) {
+        static Parameter parse(String string) {
             char[] chars = string.toCharArray();
             int[] indices = indices(chars);
             return new Parameter(string, indices, array(chars, indices));
@@ -254,7 +253,7 @@ final class State {
          * @param index
          * @return
          */
-        public String at(int index) {
+        String at(int index) {
             return has(index) ? array[index] : "";
         }
 
@@ -264,7 +263,8 @@ final class State {
          * @param index
          * @return
          */
-        public String after(int index) {
+        @SuppressWarnings("unused")
+        String after(int index) {
             return has(index) ? string.substring(indices[index]) : "";
         }
 
@@ -274,7 +274,7 @@ final class State {
          * @param index
          * @return
          */
-        public boolean has(int index) {
+        boolean has(int index) {
             if (index < 0)
                 throw new IndexOutOfBoundsException("index >= 0: " + index);
             return index < array.length;
@@ -285,7 +285,8 @@ final class State {
          *
          * @return
          */
-        public String[] asArray() {
+        @SuppressWarnings("unused")
+        String[] asArray() {
             return array.clone();
         }
 
@@ -295,7 +296,8 @@ final class State {
          *
          * @return
          */
-        public String asString() {
+        @SuppressWarnings("unused")
+        String asString() {
             return string;
         }
 
