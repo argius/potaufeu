@@ -56,7 +56,7 @@ public final class App {
         Sampler sampler = new Sampler(createsResult, verbose);
         StreamOperation.of(stream).verbose(verbose).sorted(PathSorter.getSorter(opts.getSortKeys())).sequential()
                 .peek(sampler).head(opts.getHeadCount()).tail(opts.getTailCount()).getStream()
-                .forEach(TerminalOperation.with(out, opts));
+                .forEachOrdered(TerminalOperation.with(out, opts));
         if (sampler.isResultRecorded)
             if (sampler.getResult().matchedCount() == 0)
                 out.println(message("i.notFound"));
