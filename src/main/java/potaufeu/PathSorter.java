@@ -32,7 +32,6 @@ public interface PathSorter extends Comparator<Path> {
             }
                 break;
             case "iname":
-                // TODO use String.CASE_INSENSITIVE_ORDER instead ?
                 tmp = Comparator.comparing(x -> FileAttributeFormatter.name(x).toLowerCase());
                 break;
             default:

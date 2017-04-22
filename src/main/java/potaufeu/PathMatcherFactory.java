@@ -90,7 +90,7 @@ public final class PathMatcherFactory {
     private static boolean isText(Path path) {
         if (!Files.isRegularFile(path))
             return false;
-        // TODO experimental
+        // experimental
         try (Stream<String> stream = Files.lines(path)) {
             @SuppressWarnings("unused")
             long n = stream.limit(4096).count();
