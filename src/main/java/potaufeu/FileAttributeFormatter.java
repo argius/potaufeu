@@ -62,7 +62,11 @@ public final class FileAttributeFormatter {
     }
 
     public static String name(Path path) {
-        return path.getFileName().toString();
+        Path n = path.getFileName();
+        if (n == null)
+            // the drive root on Windows returns null
+            return "";
+        return n.toString();
     }
 
     public String formattedSize() {
@@ -207,16 +211,16 @@ public final class FileAttributeFormatter {
 
     public static <T extends Path> Function<T, Long> toLongLambda(String attrName) {
         switch (attrName) {
-        case "size":
-            return x -> size(x);
-        case "ctime":
-            return x -> ctime(x);
-        case "mtime":
-            return x -> mtime(x);
-        case "atime":
-            return x -> atime(x);
-        default:
-            throw new IllegalArgumentException("bad attrName: " + attrName);
+            case "size":
+                return x -> size(x);
+            case "ctime":
+                return x -> ctime(x);
+            case "mtime":
+                return x -> mtime(x);
+            case "atime":
+                return x -> atime(x);
+            default:
+                throw new IllegalArgumentException("bad attrName: " + attrName);
         }
     }
 
