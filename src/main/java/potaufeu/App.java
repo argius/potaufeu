@@ -51,12 +51,12 @@ public final class App {
     }
 
     long filterPaths(Stream<Path> stream, OptionSet opts) {
-        boolean createsResult = opts.isState() || !state.existsResult();
-        boolean measuresCount = opts.isVerbose();
-        Sampler sampler = new Sampler(createsResult, measuresCount);
-        Consumer<Path> terminalOp = TerminalOperation.with(out, opts);
-        StreamOperation.of(stream).verbose(opts.isVerbose()).sorted(PathSorter.getSorter(opts.getSortKeys()))
-                .sequential().peek(sampler).head(opts.getHeadCount()).tail(opts.getTailCount()).forEach(terminalOp);
+        final boolean createsResult = opts.isState() || !state.existsResult();
+        final boolean verbose = opts.isVerbose();
+        Sampler sampler = new Sampler(createsResult, verbose);
+        StreamOperation.of(stream).verbose(verbose).sorted(PathSorter.getSorter(opts.getSortKeys())).sequential()
+                .peek(sampler).head(opts.getHeadCount()).tail(opts.getTailCount()).getStream()
+                .forEach(TerminalOperation.with(out, opts));
         if (sampler.isResultRecorded)
             if (sampler.getResult().matchedCount() == 0)
                 out.println(message("i.notFound"));
