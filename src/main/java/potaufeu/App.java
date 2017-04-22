@@ -75,11 +75,9 @@ public final class App {
     long collectExtensions(Stream<Path> stream, OptionSet opts) {
         LongAdder count = new LongAdder();
         Stream<String> stExt = stream.map(StreamOperation::pathToExtension).distinct();
-        // TODO check sort keys
-        Optional<Comparator<String>> sorter =
-            opts.getSortKeys().isEmpty() ? Optional.empty() : Optional.of(String.CASE_INSENSITIVE_ORDER);
-        StreamOperation.of(stExt).peek(x -> count.increment()).sorted(sorter).head(opts.getHeadCount())
-                .tail(opts.getTailCount()).getStream().forEach(out::println);
+        // the sorting support has been removed on 2017-04-21
+        StreamOperation.of(stExt).peek(x -> count.increment()).head(opts.getHeadCount()).tail(opts.getTailCount())
+                .getStream().forEach(out::println);
         return count.longValue();
     }
 
