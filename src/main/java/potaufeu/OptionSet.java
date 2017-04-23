@@ -5,7 +5,6 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.stream.*;
 import org.apache.commons.cli.*;
-import org.apache.commons.lang3.*;
 
 /**
  * A set of patterns and options.
@@ -349,9 +348,11 @@ public final class OptionSet {
         }
 
         static List<String> stringValues(CommandLine cl, String optionKey) {
-            log.debug(() -> String.format("option: hasOption=%s, key=%s, values=%s", (cl.hasOption(optionKey) ? "T"
-                    : "F"), optionKey, Arrays.toString(ArrayUtils.nullToEmpty(cl.getOptionValues(optionKey)))));
-            return Arrays.asList(ArrayUtils.nullToEmpty(cl.getOptionValues(optionKey)));
+            String[] values = cl.getOptionValues(optionKey);
+            String[] a = (values == null) ? new String[0] : values;
+            log.debug(() -> String.format("option: hasOption=%s, key=%s, values=%s",
+                (cl.hasOption(optionKey) ? "T" : "F"), optionKey, Arrays.toString(a)));
+            return Arrays.asList(a);
         }
 
     }

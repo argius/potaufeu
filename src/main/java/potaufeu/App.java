@@ -1,7 +1,7 @@
 package potaufeu;
 
 import static potaufeu.Messages.message;
-import static potaufeu.PackagePrivate.asPrintWriter;
+import static potaufeu.PackagePrivate.*;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
@@ -9,8 +9,6 @@ import java.util.concurrent.atomic.*;
 import java.util.function.*;
 import java.util.stream.*;
 import org.apache.commons.cli.*;
-import org.apache.commons.io.*;
-import org.apache.commons.lang3.builder.*;
 import jline.console.*;
 import potaufeu.StreamOperation.*;
 
@@ -223,9 +221,12 @@ public final class App {
         try (InputStream is = App.class.getResourceAsStream("version")) {
             if (is == null)
                 sb.append("???");
-            else
-                sb.append(String.join("", IOUtils.readLines(is)));
-        } catch (IOException e) {
+            else {
+                @SuppressWarnings("resource")
+                Scanner sc = new Scanner(is);
+                sb.append(sc.nextLine());
+            }
+        } catch (IOException | NoSuchElementException e) {
             log.warn(() -> "App.version", e);
             sb.append("?");
         }
@@ -282,7 +283,7 @@ public final class App {
         log.debug(() -> "args=" + Arrays.asList(args));
         try {
             OptionSet opts = OptionSet.parseArguments(args);
-            log.info(() -> "opts=" + ReflectionToStringBuilder.toString(opts, ToStringStyle.SHORT_PREFIX_STYLE));
+            log.info(() -> "opts=" + toStringWithReflection(opts));
             App app = new App();
             app.runCommand(opts);
             if (opts.isState())
