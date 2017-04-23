@@ -340,10 +340,11 @@ public final class OptionSet {
         private static OptionalInt optInt(CommandLine cl, String optionKey) {
             if (!cl.hasOption(optionKey))
                 return OptionalInt.empty();
+            String v = cl.getOptionValue(optionKey);
             try {
-                return OptionalInt.of(Integer.parseInt(cl.getOptionValue(optionKey)));
+                return OptionalInt.of(Integer.parseUnsignedInt(v));
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException(message("e.badOption", cl.getOptionValue(optionKey), optionKey), e);
+                throw new IllegalArgumentException(message("e.argOptionMustPositiveNumber", optionKey, v), e);
             }
         }
 
