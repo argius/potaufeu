@@ -142,7 +142,15 @@ public final class FileAttributeFormatter {
     }
 
     public String formattedPermissions() {
-        return permissions().map(PosixFilePermissions::toString).orElse("rwx------");
+        return permissions().map(PosixFilePermissions::toString).orElseGet(
+            () -> formatPermissionsAsBools(Files.isReadable(path), Files.isWritable(path), Files.isExecutable(path)));
+    }
+
+    static String formatPermissionsAsBools(boolean readable, boolean writable, boolean executable) {
+        char r = (readable) ? 'r' : '-';
+        char w = (writable) ? 'w' : '-';
+        char x = (executable) ? 'x' : '-';
+        return String.valueOf(new char[] { r, w, x, r, w, x, r, '-', x });
     }
 
     public Optional<Set<PosixFilePermission>> permissions() {

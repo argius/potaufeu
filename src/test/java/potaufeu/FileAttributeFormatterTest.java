@@ -88,11 +88,22 @@ public final class FileAttributeFormatterTest {
         assertEquals('-', getEntryType(readBasicAttributes(path)));
     }
 
-
     @Test
     public void testFormattedPermission() {
         FileAttributeFormatter o = new FileAttributeFormatter(path);
         _assertThat(o.formattedPermissions(), x -> x.matches("[r-][w-][x-][r-][w-][x-][r-][w-][x-]"));
+    }
+
+    @Test
+    public void testFormatPermissionsAsBools() {
+        assertEquals("---------", formatPermissionsAsBools(false, false, false));
+        assertEquals("r--r--r--", formatPermissionsAsBools(true, false, false));
+        assertEquals("-w--w----", formatPermissionsAsBools(false, true, false));
+        assertEquals("rw-rw-r--", formatPermissionsAsBools(true, true, false));
+        assertEquals("--x--x--x", formatPermissionsAsBools(false, false, true));
+        assertEquals("r-xr-xr-x", formatPermissionsAsBools(true, false, true));
+        assertEquals("-wx-wx--x", formatPermissionsAsBools(false, true, true));
+        assertEquals("rwxrwxr-x", formatPermissionsAsBools(true, true, true));
     }
 
     @Test
