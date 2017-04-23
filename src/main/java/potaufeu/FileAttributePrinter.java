@@ -51,7 +51,7 @@ public final class FileAttributePrinter {
             u.setFileSizeFormatter(sz -> formatFileSize(sz));
             u.setFileTimeFormatter(ft -> formatFileTime(ft));
             out.printf(fmt, u.entryType(), u.formattedSize(), u.formattedCtime(), u.formattedMtime(),
-                    u.formattedAtime(), path2s.apply(x));
+                u.formattedAtime(), path2s.apply(x));
         };
     }
 
@@ -61,8 +61,15 @@ public final class FileAttributePrinter {
             FileAttributeFormatter u = new FileAttributeFormatter(x);
             u.setFileSizeFormatter(sz -> String.format("%8d", sz));
             u.setFileTimeFormatter(ft -> formatPosixLikeDateTime(ft));
-            out.printf(fmt, u.entryType(), u.formattedPermissions(), u.aclSign(), u.nLink(),
-                    u.ownerString(), u.formattedSize(), u.formattedMtime(), path2s.apply(x));
+            final char type = u.entryType();
+            final String perms = u.formattedPermissions();
+            final char aclSign = u.aclSign();
+            final String nlink = u.nLink();
+            final String owner = u.ownerString();
+            final String size = u.formattedSize();
+            final String mtime = u.formattedMtime();
+            final String path = path2s.apply(x);
+            out.printf(fmt, type, perms, aclSign, nlink, owner, size, mtime, path);
         };
     }
 
