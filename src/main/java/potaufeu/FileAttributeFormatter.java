@@ -122,13 +122,24 @@ public final class FileAttributeFormatter {
     }
 
     public char entryType() {
-        return getEntryType(attr);
+        return getEntryType(path);
     }
 
     public static char entryType(Path path) {
-        return getEntryType(readBasicAttributes(path));
+        return getEntryType(path);
     }
 
+    public static char getEntryType(Path path) {
+        if (Files.isDirectory(path))
+            return 'd';
+        if (Files.isSymbolicLink(path))
+            return 'l';
+        if (Files.isRegularFile(path))
+            return '-';
+        return '?';
+    }
+
+    @Deprecated // Use getEntryType(Path) instead
     public static char getEntryType(BasicFileAttributes attr) {
         if (attr.isDirectory())
             return 'd';

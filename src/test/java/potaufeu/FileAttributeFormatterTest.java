@@ -83,6 +83,7 @@ public final class FileAttributeFormatterTest {
         assertEquals('-', entryType(path));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testGetEntryTypeBasicFileAttributes() {
         assertEquals('-', getEntryType(readBasicAttributes(path)));
