@@ -68,8 +68,16 @@ public final class FileAttributePrinter {
             final String owner = u.ownerString();
             final String size = u.formattedSize();
             final String mtime = u.formattedMtime();
-            final String path = path2s.apply(x);
-            out.printf(fmt, type, perms, aclSign, nlink, owner, size, mtime, path);
+            StringBuilder sbPath = new StringBuilder();
+            sbPath.append(path2s.apply(x));
+            if (type == 'l')
+                try {
+                    Path symlink = Files.readSymbolicLink(x);
+                    sbPath.append(" -> ").append(path2s.apply(symlink));
+                } catch (IOException e) {
+                    log.warn(() -> "", e);
+                }
+            out.printf(fmt, type, perms, aclSign, nlink, owner, size, mtime, sbPath);
         };
     }
 
