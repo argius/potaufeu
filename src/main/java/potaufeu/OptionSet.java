@@ -322,8 +322,8 @@ public final class OptionSet {
         }
 
         static OptionalInt optIntValue(CommandLine cl, String optionKey) {
-            log.debug(() -> String.format("option: hasOption=%s, key=%s, value=%s", (cl.hasOption(optionKey) ? "T"
-                    : "F"), optionKey, cl.getOptionValue(optionKey)));
+            log.debug(() -> String.format("option: hasOption=%s, key=%s, value=%s",
+                (cl.hasOption(optionKey) ? "T" : "F"), optionKey, cl.getOptionValue(optionKey)));
             return optInt(cl, optionKey);
         }
 

@@ -14,23 +14,40 @@ public final class VerboseMessages {
     }
 
     public static String patterns(OptionSet opts) {
+        // @formatter:off
         return flatten(
-            Stream.of(format("path", opts.getPathPatterns()), format("exts", opts.getExtensionPatterns()),
-                format("name", opts.getNamePatterns()), format("exclude", opts.getExclusionPatterns()),
-                format("size", opts.getFileSizePatterns()), format("ctime", opts.getCtimePatterns()),
-                format("mtime", opts.getMtimePatterns()), format("atime", opts.getAtimePatterns()),
-                format("file only", opts.isFile()), format("text file", opts.isText()))).collect(
-            Collectors.joining(", "));
+            Stream.of(
+                format("path", opts.getPathPatterns()),
+                format("exts", opts.getExtensionPatterns()),
+                format("name", opts.getNamePatterns()),
+                format("exclude", opts.getExclusionPatterns()),
+                format("size", opts.getFileSizePatterns()),
+                format("ctime", opts.getCtimePatterns()),
+                format("mtime", opts.getMtimePatterns()),
+                format("atime", opts.getAtimePatterns()),
+                format("file only", opts.isFile()),
+                format("text file", opts.isText())))
+            .collect(Collectors.joining(", "));
+        // @formatter:on
     }
 
     public static String options(OptionSet opts) {
+        // @formatter:off
         return flatten(
-            Stream.of(format("dir", opts.getDirectories()), format("quiet", opts.isQuiet()),
-                format("full path", opts.isPrintsFullpath()), format("list", opts.isPrintsList()),
-                format("list-posix", opts.isPrintsPosixLikeList()), format("list-detail", opts.isPrintsDetailList()),
-                format("list-linecount", opts.isPrintsLineCount()), format("sortkeys", opts.getSortKeys()),
-                format("slash", opts.isSlash()), format("head", opts.getHeadCount()),
-                format("tail", opts.getTailCount()))).collect(Collectors.joining(", "));
+            Stream.of(
+                format("dir", opts.getDirectories()),
+                format("quiet", opts.isQuiet()),
+                format("full path", opts.isPrintsFullpath()),
+                format("list", opts.isPrintsList()),
+                format("list-posix", opts.isPrintsPosixLikeList()),
+                format("list-detail", opts.isPrintsDetailList()),
+                format("list-linecount", opts.isPrintsLineCount()),
+                format("sortkeys", opts.getSortKeys()),
+                format("slash", opts.isSlash()),
+                format("head", opts.getHeadCount()),
+                format("tail", opts.getTailCount())))
+            .collect(Collectors.joining(", "));
+        // @formatter:on
     }
 
     public static String end(long matchedCount, long allFileCount, long elapsed) {
