@@ -3,6 +3,7 @@ package potaufeu;
 import java.io.*;
 import java.util.*;
 
+@Deprecated
 final class State {
 
     private static final Log log = Log.logger(State.class);

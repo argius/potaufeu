@@ -16,11 +16,13 @@ public final class App {
 
     private static final Log log = Log.logger(App.class);
 
-    private State state;
+    final ResultList results;
+
     private PrintWriter out;
+    private boolean interactive;
 
     public App() {
-        this.state = new State();
+        this.results = new ResultList();
         this.out = asPrintWriter(System.out);
     }
 
@@ -49,7 +51,7 @@ public final class App {
     }
 
     long filterPaths(Stream<Path> stream, OptionSet opts) {
-        final boolean createsResult = opts.isState() || state.isStateMode();
+        final boolean createsResult = opts.isState() || interactive;
         final boolean verbose = opts.isVerbose();
         Sampler sampler = new Sampler(createsResult, verbose);
         StreamOperation.of(stream).verbose(verbose).sorted(PathSorter.getSorter(opts.getSortKeys())).sequential()
@@ -58,11 +60,10 @@ public final class App {
         if (sampler.isResultRecorded)
             if (sampler.getResult().matchedCount() == 0)
                 out.println(message("i.notFound"));
-            else if (createsResult
-                     && (!state.existsResult()
-                         || sampler.getResult().matchedCount() != state.getFirstResult().matchedCount())) {
-                state.pushResult(sampler.getResult());
-                out.println(state.resultsSummary());
+            else if (createsResult && (results.isEmpty()
+                                       || sampler.getResult().matchedCount() != results.getFirst().matchedCount())) {
+                results.push(sampler.getResult());
+                out.println(results.summary());
             }
         if (sampler.isCounted)
             return sampler.getCount().longValue();
@@ -93,9 +94,9 @@ public final class App {
             stream.filter(grepFilter).peek(r::addPath).forEach(greppedAction);
             if (grepped.isEmpty())
                 out.print(message("i.notFound"));
-            else if (!state.existsResult() || grepped.size() != state.getFirstResult().grepped.size()) {
-                state.pushResult(r);
-                out.println(state.resultsSummary());
+            else if (results.isEmpty() || grepped.size() != results.getFirst().grepped.size()) {
+                results.push(r);
+                out.println(results.summary());
             }
             return r.matchedCount();
         }
@@ -158,12 +159,13 @@ public final class App {
 
     Stream<Path> createStream(OptionSet opts, LongAdder count) {
         final int maxDepth = opts.getMaxDepth().orElse(Integer.MAX_VALUE);
-        if (!opts.isState() && state.existsResult()) {
+        if (!opts.isState() && !results.isEmpty()) {
             // from cached result
             log.debug(() -> "create stream from cached result");
-            count.add(state.getFirstResult().matchedCount());
+            Result firstResult = results.getFirst();
+            count.add(firstResult.matchedCount());
             // TODO add depth filter
-            return state.getFirstResult().pathStream().parallel();
+            return firstResult.pathStream().parallel();
         }
         if (isStdinAvailable()) {
             // from stdin
@@ -246,29 +248,10 @@ public final class App {
         cr.setBellEnabled(false);
         cr.setPrompt("> ");
         this.out = new PrintWriter(cr.getOutput(), true);
+        out.println();
         out.println(version());
-        state.setStateMode(true);
-        try {
-            while (true) {
-                final String line = cr.readLine();
-                if (line == null || line.matches("(exit|quit)"))
-                    break;
-                else if (line.trim().isEmpty())
-                    continue; // do nothing
-                else if (line.equals("cls"))
-                    cr.clearScreen();
-                else if (line.matches("\\s*:.*"))
-                    state.controlBy(out, line);
-                else
-                    try {
-                        runCommand(OptionSet.parseArguments(line.split(" ")));
-                    } catch (Exception e) {
-                        log.warn(() -> "", e);
-                    }
-            }
-        } catch (IOException e) {
-            log.error(() -> "(while)", e);
-        }
+        this.interactive = true;
+        InteractiveMode.start(this, out, cr);
     }
 
     public void runCommand(OptionSet opts) {
