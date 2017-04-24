@@ -1,5 +1,6 @@
 package potaufeu;
 
+import static potaufeu.Messages.message;
 import java.io.*;
 import java.util.*;
 import jline.console.*;
@@ -21,6 +22,8 @@ final class InteractiveMode {
                     continue; // do nothing
                 else if (line.equals(":cls"))
                     cr.clearScreen();
+                else if (line.equals(":help"))
+                    out.println(message("help.interactive"));
                 else if (line.matches("\\s*:.*"))
                     controlResults(app.results, out, line);
                 else
