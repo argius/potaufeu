@@ -11,9 +11,9 @@ dependencies {
     compile 'jline:jline:2.12.1'
     compile 'org.slf4j:slf4j-api:1.7.25'
     compile 'org.slf4j:slf4j-nop:1.7.25'
-    testCompile 'ch.qos.logback:logback-core:1.1.2'
-    testCompile 'ch.qos.logback:logback-classic:1.1.2'
-    testCompile 'junit:junit:4.11'
+    testCompile 'ch.qos.logback:logback-core:1.2.3'
+    testCompile 'ch.qos.logback:logback-classic:1.2.3'
+    testCompile 'junit:junit:4.12'
     testCompile 'org.hamcrest:hamcrest-junit:2.0.0.0'
 }
 
