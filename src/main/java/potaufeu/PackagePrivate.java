@@ -23,7 +23,7 @@ final class PackagePrivate {
     static <T> Stream<T> flatten(Stream<Optional<T>> stream) {
         return stream.flatMap(opt -> {
             List<T> a = new ArrayList<>();
-            opt.ifPresent(x -> a.add(x));
+            opt.ifPresent(a::add);
             return a.stream();
         });
     }

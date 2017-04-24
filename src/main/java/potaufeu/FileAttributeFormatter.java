@@ -25,8 +25,8 @@ public final class FileAttributeFormatter {
     public FileAttributeFormatter(Path path, BasicFileAttributes attributes) {
         this.path = path;
         this.attr = attributes;
-        this.fileSizeFormatter = x -> String.valueOf(x);
-        this.fileTimeFormatter = x -> String.valueOf(x);
+        this.fileSizeFormatter = String::valueOf;
+        this.fileTimeFormatter = String::valueOf;
     }
 
     public Path getPath() {

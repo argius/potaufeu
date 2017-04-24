@@ -90,7 +90,7 @@ public final class App {
         };
         if (opts.isState()) {
             Result r = new Result();
-            stream.filter(grepFilter).peek(x -> r.addPath(x)).forEach(greppedAction);
+            stream.filter(grepFilter).peek(r::addPath).forEach(greppedAction);
             if (grepped.isEmpty())
                 out.print(message("i.notFound"));
             else if (!state.existsResult() || grepped.size() != state.getFirstResult().grepped.size()) {

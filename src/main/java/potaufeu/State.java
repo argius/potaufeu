@@ -116,7 +116,7 @@ final class State {
         case "sort":
             try {
                 Result r = new Result();
-                results.get(0).pathStream().forEach(x -> r.addPath(x));
+                results.get(0).pathStream().forEach(r::addPath);
                 results.addFirst(r);
                 break;
             } catch (NumberFormatException | IndexOutOfBoundsException e) {
