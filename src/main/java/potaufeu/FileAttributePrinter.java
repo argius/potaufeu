@@ -59,7 +59,7 @@ public final class FileAttributePrinter {
         final String fmt = "%s%s%s%2s %s%s %s %s" + eol;
         return x -> {
             FileAttributeFormatter u = new FileAttributeFormatter(x);
-            u.setFileSizeFormatter(sz -> String.format("%8d", sz));
+            u.setFileSizeFormatter(sz -> formatPosixLikeFileSize(sz));
             u.setFileTimeFormatter(ft -> formatPosixLikeDateTime(ft));
             final char type = u.entryType();
             final String perms = u.formattedPermissions();
@@ -103,6 +103,10 @@ public final class FileAttributePrinter {
 
     private static String formatFileTime(FileTime ft) {
         return String.format("%1$tF %1$tT", ft.toMillis());
+    }
+
+    private static String formatPosixLikeFileSize(long size) {
+        return String.format("%8d", size);
     }
 
     private static String formatPosixLikeDateTime(FileTime ft) {
