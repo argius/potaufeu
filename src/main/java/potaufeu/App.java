@@ -49,7 +49,7 @@ public final class App {
     }
 
     long filterPaths(Stream<Path> stream, OptionSet opts) {
-        final boolean createsResult = opts.isState() || !state.existsResult();
+        final boolean createsResult = opts.isState() || state.isStateMode();
         final boolean verbose = opts.isVerbose();
         Sampler sampler = new Sampler(createsResult, verbose);
         StreamOperation.of(stream).verbose(verbose).sorted(PathSorter.getSorter(opts.getSortKeys())).sequential()
@@ -58,8 +58,9 @@ public final class App {
         if (sampler.isResultRecorded)
             if (sampler.getResult().matchedCount() == 0)
                 out.println(message("i.notFound"));
-            else if (!state.isStateMode()
-                     || sampler.getResult().matchedCount() != state.getFirstResult().matchedCount()) {
+            else if (createsResult
+                     && (!state.existsResult()
+                         || sampler.getResult().matchedCount() != state.getFirstResult().matchedCount())) {
                 state.pushResult(sampler.getResult());
                 out.println(state.resultsSummary());
             }
@@ -246,6 +247,7 @@ public final class App {
         cr.setPrompt("> ");
         this.out = new PrintWriter(cr.getOutput(), true);
         out.println(version());
+        state.setStateMode(true);
         try {
             while (true) {
                 final String line = cr.readLine();
