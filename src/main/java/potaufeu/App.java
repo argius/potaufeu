@@ -250,6 +250,7 @@ public final class App {
         this.out = new PrintWriter(cr.getOutput(), true);
         out.println();
         out.println(version());
+        out.println(message("i.startInteractiveMode"));
         this.interactive = true;
         InteractiveMode.start(this, out, cr);
     }
