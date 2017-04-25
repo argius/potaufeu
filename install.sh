@@ -35,12 +35,11 @@ mkdir -p $libdir && cp -fp *${ver}.jar $libdir/
 test -f $libdir/$jarfile || errexit "failed to copy jar file"
 mkdir -p $bindir && ( echo "#!/bin/sh" ; echo "java -jar $libdir/$jarfile \$@" ) > $scriptfile
 test -f $scriptfile || errexit "failed to create script"
-chmod +x $scriptfile || errexit "failed to change permission"
 cd ~/
 
-export PATH=$bindir:$PATH
-echo "Checking installation => " `$scriptname --version`
-echo "Succeeded if version displayed."
+install $scriptfile /usr/local/bin
+echo "\"$prodname\" was installed to /usr/local/bin and $dir/."
+echo "Checking installation => `$scriptname --version`"
 echo ""
-echo "To finish installation, add \"export PATH=\$PATH:$bindir\" into your shell profile."
+echo "Installation completed."
 rm -f /tmp/$prodname/${prodname}-* && rmdir /tmp/$prodname
