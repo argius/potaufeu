@@ -35,9 +35,8 @@ mkdir -p $libdir && cp -fp *${ver}.jar $libdir/
 test -f $libdir/$jarfile || errexit "failed to copy jar file"
 mkdir -p $bindir && ( echo "#!/bin/sh" ; echo "java -jar $libdir/$jarfile \$@" ) > $scriptfile
 test -f $scriptfile || errexit "failed to create script"
-cd ~/
+install $scriptfile /usr/local/bin || errexit "failed to install script"
 
-install $scriptfile /usr/local/bin
 echo "\"$prodname\" was installed to /usr/local/bin and $dir/."
 echo "Checking installation => `$scriptname --version`"
 echo ""
