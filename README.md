@@ -8,12 +8,20 @@ Potaufeu requires JRE 8 or later.
 
 
 
-Download
---------
+To Install
+----------
 
-Download the latest Jar file from the release page in GitHub.
+Run the following command.
 
-https://github.com/argius/potaufeu/releases
+```sh
+$ curl -fsSL https://goo.gl/m54fCw | sh
+```
+This url is shortened of `https://raw.githubusercontent.com/argius/potaufeu/master/install.sh`.
+
+To uninstall, remove `~/.potaufeu` and `/usr/local/bin/potf`.
+
+
+You need only to download, see [https://github.com/argius/potaufeu/releases].
 
 
 
