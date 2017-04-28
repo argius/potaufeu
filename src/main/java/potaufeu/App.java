@@ -164,7 +164,10 @@ public final class App {
             log.debug(() -> "create stream from cached result");
             Result firstResult = results.getFirst();
             count.add(firstResult.matchedCount());
-            // TODO add depth filter
+            if (opts.getMaxDepth().isPresent()) {
+                final int maxDepthPlus1 = maxDepth + 1;
+                return firstResult.pathStream().filter(x -> x.getNameCount() <= maxDepthPlus1).parallel();
+            }
             return firstResult.pathStream().parallel();
         }
         if (isStdinAvailable()) {
