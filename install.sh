@@ -16,7 +16,9 @@ bindir=$dir/bin
 libdir=$dir/lib
 zipfile=${prodname}-${ver}-bin.zip
 jarfile=${prodname}-${ver}.jar
-execfile=$bindir/$execname
+jarpath=$libdir/$jarfile
+binfile=$bindir/$execname
+execfile=$execdir/$execname
 
 errexit() {
   printf "\033[31m[ERROR]\033[0m" ; echo " $1"
@@ -39,6 +41,29 @@ trap "trap - EXIT; onexit; exit -1" 1 2 15 # SIGHUP SIGINT SIGTERM
 
 echo "This is the installer of \"$prodname\"."
 echo ""
+
+# OS adjustment
+case "`uname -a`" in
+  CYGWIN* )
+    echo "adjusting for Cygwin"
+    jarpath=`cygpath -m $jarpath`
+    echo ""
+    ;;
+  *ubuntu* )
+    echo "adjusting for Ubuntu"
+    if [ -d ~/.local/bin ] && [ -w ~/.local/bin ]; then
+      execdir=~/.local/bin
+    elif [ -d ~/bin ] && [ -w ~/bin ]; then
+      execdir=~/bin
+    elif [ -d /usr/local/bin ] && [ -w /usr/local/bin ]; then
+      execdir=/usr/local/bin
+    else
+      errexit "cannot detect writable exec dir"
+    fi
+    execfile=$execdir/$execname
+    echo ""
+esac
+
 echo "Installs version $ver into $execdir and $dir,"
 echo "and uses $tmpdir as a working directory."
 cd $tmpdir || errexit "failed to change directory"
@@ -48,10 +73,10 @@ unzip -o $zipfile $jarfile || errexit "failed to unzip"
 
 mkdir -p $libdir && cp -fp $jarfile $libdir/
 test -f $libdir/$jarfile || errexit "failed to copy jar file"
-mkdir -p $bindir && ( echo "#!/bin/sh" ; echo "java -jar $libdir/$jarfile \$@" ) > $execfile
-test -f $execfile || errexit "failed to create a script file"
-chmod +x $execfile || errexit "failed to change a permission"
-ln -sf $execfile $execdir/$execname || errexit "failed to create a symlink of execfile"
+mkdir -p $bindir && ( echo "#!/bin/sh" ; echo "java -jar $jarpath \$@" ) > $binfile
+test -f $binfile || errexit "failed to create $binfile"
+chmod +x $binfile || errexit "failed to change a permission"
+ln -sf $binfile $execfile || errexit "failed to create a symlink of $binfile"
 
 echo "\"$prodname\" has been installed to $execdir and $dir/ ."
 echo "Checking installation => `$execname --version`"
