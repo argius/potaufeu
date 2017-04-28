@@ -25,8 +25,9 @@ public final class VerboseMessages {
                 format("ctime", opts.getCtimePatterns()),
                 format("mtime", opts.getMtimePatterns()),
                 format("atime", opts.getAtimePatterns()),
-                format("file only", opts.isFile()),
-                format("text file", opts.isText())))
+                format("file-only", opts.isFile()),
+                format("text-file", opts.isText()),
+                format("grep", opts.getGrepPatterns())))
             .collect(Collectors.joining(", "));
         // @formatter:on
     }
@@ -36,6 +37,7 @@ public final class VerboseMessages {
         return flatten(
             Stream.of(
                 format("dir", opts.getDirectories()),
+                format("max-depth", opts.getMaxDepth()),
                 format("quiet", opts.isQuiet()),
                 format("full path", opts.isPrintsFullpath()),
                 format("list", opts.isPrintsList()),
@@ -45,7 +47,8 @@ public final class VerboseMessages {
                 format("sortkeys", opts.getSortKeys()),
                 format("slash", opts.isSlash()),
                 format("head", opts.getHeadCount()),
-                format("tail", opts.getTailCount())))
+                format("tail", opts.getTailCount()),
+                format("state", opts.isState())))
             .collect(Collectors.joining(", "));
         // @formatter:on
     }
@@ -63,7 +66,7 @@ public final class VerboseMessages {
     }
 
     private static Optional<String> format(String optionKey, OptionalInt optInt) {
-        return (optInt.isPresent()) ? Optional.of(optionKey + " " + optInt.getAsInt()) : Optional.empty();
+        return (optInt.isPresent()) ? Optional.of(optionKey + '=' + optInt.getAsInt()) : Optional.empty();
     }
 
 }
