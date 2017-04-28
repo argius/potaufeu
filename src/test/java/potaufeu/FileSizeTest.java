@@ -6,7 +6,7 @@ import java.util.function.*;
 import org.junit.Test;
 import junit.framework.*;
 
-public class FileSizeTest {
+public final class FileSizeTest {
 
     @Test
     public void testToByteSize() {
@@ -37,16 +37,12 @@ public class FileSizeTest {
     public void testToByteSizeArgError() {
         for (String s : new String[] { "", "KA", "1KAA", "1A", "1KA", "1BB", })
             assertEquals("java.lang.IllegalArgumentException: invalid filesize expression: " + s,
-                getExceptionAsString(() -> {
-                    toByteSize(s);
-                }));
+                getExceptionAsString(() -> toByteSize(s)));
     }
 
     @Test
     public void testToString() {
-        Function<String, String> f = x -> {
-            return String.valueOf(new FileSize(x));
-        };
+        Function<String, String> f = x -> String.valueOf(new FileSize(x));
         assertEquals("FileSize(35)", f.apply("35"));
         assertEquals("FileSize(10KB)", f.apply("10KB"));
     }
