@@ -38,11 +38,8 @@ Usage
 Run the following command.
 
 ```
-$ java -jar /path/to/potaufeu.jar --help
+$ potf --help
 ```
-
-`potf` is the proposed command name.
-Set up alias if you need.
 
 
 
