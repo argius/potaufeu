@@ -14,9 +14,16 @@ To Install
 Run the following command.
 
 ```sh
+$ curl -fsSL http://bit.ly/instpotf | sh
+```
+
+or
+
+```sh
 $ curl -fsSL https://goo.gl/m54fCw | sh
 ```
-This url is shortened of `https://raw.githubusercontent.com/argius/potaufeu/master/install.sh`.
+
+Both of these urls are shortened of `https://raw.githubusercontent.com/argius/potaufeu/master/install.sh`.
 
 To uninstall, remove `~/.potaufeu` and `/usr/local/bin/potf`.
 
