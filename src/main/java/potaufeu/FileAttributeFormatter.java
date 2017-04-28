@@ -169,7 +169,7 @@ public final class FileAttributeFormatter {
     }
 
     public static Optional<Set<PosixFilePermission>> permissions(Path path) {
-        return permissions(path);
+        return permissions(readBasicAttributes(path));
     }
 
     public static Optional<Set<PosixFilePermission>> permissions(BasicFileAttributes attr) {
