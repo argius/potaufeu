@@ -15,6 +15,7 @@ baseurl=https://github.com/$owner/$prodname
 bindir=$dir/bin
 libdir=$dir/lib
 zipfile=${prodname}-${ver}-bin.zip
+zipurl=$baseurl/releases/download/v$ver/$zipfile
 jarfile=${prodname}-${ver}.jar
 jarpath=$libdir/$jarfile
 binfile=$bindir/$execname
@@ -42,15 +43,10 @@ trap "trap - EXIT; onexit; exit -1" 1 2 15 # SIGHUP SIGINT SIGTERM
 echo "This is the installer of \"$prodname\"."
 echo ""
 
-# OS adjustment
+# OS specific settings
 case "`uname -a`" in
-  CYGWIN* )
-    echo "adjusting for Cygwin"
-    jarpath=`cygpath -m $jarpath`
-    echo ""
-    ;;
-  *ubuntu* )
-    echo "adjusting for Ubuntu"
+  Linux* )
+    echo "adjusting for Linux"
     if [ -d ~/.local/bin ] && [ -w ~/.local/bin ]; then
       execdir=~/.local/bin
     elif [ -d ~/bin ] && [ -w ~/bin ]; then
@@ -58,17 +54,35 @@ case "`uname -a`" in
     elif [ -d /usr/local/bin ] && [ -w /usr/local/bin ]; then
       execdir=/usr/local/bin
     else
-      errexit "cannot detect writable exec dir"
+      errexit "cannot detect writable exec dir, requires ~/.local/bin or ~/bin"
     fi
     execfile=$execdir/$execname
     echo ""
+    ;;
+  *BSD* )
+    echo "adjusting for *BSD"
+    if [ -d ~/bin ] && [ -w ~/bin ]; then
+      execdir=~/bin
+    elif [ -d /usr/local/bin ] && [ -w /usr/local/bin ]; then
+      execdir=/usr/local/bin
+    else
+      errexit "cannot detect writable exec dir, requires ~/bin"
+    fi
+    execfile=$execdir/$execname
+    echo ""
+    ;;
+  CYGWIN* )
+    echo "adjusting for Cygwin"
+    jarpath=`cygpath -m $jarpath`
+    echo ""
+    ;;
 esac
 
-echo "Installs version $ver into $execdir and $dir,"
+echo "installing version $ver into $execdir and $dir,"
 echo "and uses $tmpdir as a working directory."
 cd $tmpdir || errexit "failed to change directory"
-echo "downloading: $zipfile"
-curl -fsSLO $baseurl/releases/download/v$ver/$zipfile || errexit "failed to download zip"
+echo "downloading: $zipurl"
+curl -fsSLO $zipurl || errexit "failed to download zip"
 unzip -o $zipfile $jarfile || errexit "failed to unzip"
 
 mkdir -p $libdir && cp -fp $jarfile $libdir/
@@ -79,6 +93,6 @@ chmod +x $binfile || errexit "failed to change a permission"
 ln -sf $binfile $execfile || errexit "failed to create a symlink of $binfile"
 
 echo "\"$prodname\" has been installed to $execdir and $dir/ ."
-echo "Checking installation => `$execname --version`"
+echo "checking installation => `$execname --version`"
 echo ""
 echo "Installation completed."
