@@ -16,9 +16,14 @@ final class InteractiveMode {
     }
 
     static void start(App app, PrintWriter out, ConsoleReader cr) {
-        try {
-            while (true) {
-                final String line = cr.readLine();
+        while (true) {
+            final String line;
+            try {
+                line = cr.readLine();
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+            try {
                 if (line == null || line.matches(":(exit|quit)"))
                     break;
                 else if (line.trim().isEmpty())
@@ -33,65 +38,44 @@ final class InteractiveMode {
                     try {
                         app.runCommand(OptionSet.parseArguments(line.split(" ")));
                     } catch (Exception e) {
-                        log.warn(() -> "", e);
+                        log.warn(() -> "unexpected error", e);
+                        out.println(message("e.0", e.getMessage()));
                     }
+            } catch (Exception e) {
+                log.warn(() -> "unexpected error", e);
+                out.println(message("e.0", e.getMessage()));
             }
-        } catch (IOException e) {
-            log.error(() -> "(while)", e);
         }
         log.info(() -> "exit interactive mode");
     }
 
     static void controlResults(ResultList results, PrintWriter out, String commandLine) {
         Parameter p = Parameter.parse(commandLine.replaceFirst("^\\s*:", ""));
-        switch (p.at(0)) {
-            case "drop":
-                try {
+        try {
+            switch (p.at(0)) {
+                case "drop":
                     results.drop(getParameterArgAsInt(p, 1, 1));
                     out.println(results.summary());
                     break;
-                } catch (NumberFormatException | IndexOutOfBoundsException e) {
-                    // TODO err
-                    out.println(e);
-                }
-                break;
-            case "pick":
-                try {
+                case "pick":
                     results.pick(getParameterArgAsInt(p, 1, -1));
                     out.println(results.summary());
                     break;
-                } catch (NumberFormatException | IndexOutOfBoundsException e) {
-                    // TODO err
-                    out.println(e);
-                }
-                break;
-            case "sort":
-                try {
+                case "sort":
                     Result r = new Result();
                     results.get(0).pathStream().forEach(r::addPath);
                     results.addFirst(r);
                     out.println(results.summary());
                     break;
-                } catch (NumberFormatException | IndexOutOfBoundsException e) {
-                    // TODO err
-                    out.println(e);
-                }
-                break;
-            case "label":
-                if (p.has(2))
-                    try {
+                case "label":
+                    if (p.has(2)) {
                         int p1 = getParameterArgAsInt(p, 1, 0);
                         String p2 = p.at(2);
                         results.get(p1).setName(p2);
                         out.println(results.summary());
-                        break;
-                    } catch (NumberFormatException e) {
-                        // TODO err
-                        out.println(e);
                     }
-                break;
-            case "merge":
-                try {
+                    break;
+                case "merge":
                     int p1 = getParameterArgAsInt(p, 1, 1);
                     int p2 = getParameterArgAsInt(p, 2, 0);
                     if (p1 != p2) {
@@ -99,78 +83,75 @@ final class InteractiveMode {
                         Result r2 = results.get(p2);
                         results.add(0, r1.mergeOr(r2));
                         out.println(results.summary());
-                        break;
                     }
-                } catch (NumberFormatException | IndexOutOfBoundsException e) {
-                    // TODO err
-                    out.println(e);
-                }
-                break;
-            case "load":
-                if (p.has(1)) {
-                    String name = p.at(1);
-                    File f = new File(getEtcDirectory(), name + savefileSuffix);
-                    try (FileInputStream fis = new FileInputStream(f)) {
-                        ObjectInputStream ois = new ObjectInputStream(fis);
-                        ResultList o = (ResultList) ois.readObject();
-                        results.clear();
-                        results.addAll(o);
-                        out.println(results.summary());
-                        log.debug(() -> "loaded from " + f.getAbsolutePath());
-                    } catch (Exception e) {
-                        // TODO err
-                        out.println(e);
+                    break;
+                case "load":
+                    if (p.has(1)) {
+                        String name = p.at(1);
+                        File f = new File(getEtcDirectory(), name + savefileSuffix);
+                        try (FileInputStream fis = new FileInputStream(f)) {
+                            ObjectInputStream ois = new ObjectInputStream(fis);
+                            ResultList o = (ResultList) ois.readObject();
+                            results.clear();
+                            results.addAll(o);
+                            out.println(results.summary());
+                            log.debug(() -> "loaded from " + f.getAbsolutePath());
+                        } catch (ClassNotFoundException | EOFException e) {
+                            log.warn(() -> "while deserializing", e);
+                            throw new IOException(message("e.failedToLoadFile"), e);
+                        }
                     }
-                }
-                else
-                    showSnapshotFiles(out);
-                break;
-            case "save":
-                if (p.has(1)) {
-                    String name = p.at(1);
-                    File dir = getEtcDirectory();
-                    if (dir.mkdir()) {
-                        // TODO err
-                        out.println("can't create directory: " + dir.getAbsolutePath());
-                        break;
+                    else
+                        showSnapshotFiles(out);
+                    break;
+                case "save":
+                    if (p.has(1)) {
+                        String name = p.at(1);
+                        File dir = getEtcDirectory();
+                        if (dir.mkdir())
+                            throw new IOException("can't create directory: " + dir.getAbsolutePath());
+                        File f = new File(dir, name + savefileSuffix);
+                        try (FileOutputStream fos = new FileOutputStream(f)) {
+                            ObjectOutputStream oos = new ObjectOutputStream(fos);
+                            oos.writeObject(results);
+                            log.debug(() -> "saved to " + f.getAbsolutePath());
+                        }
                     }
-                    File f = new File(dir, name + savefileSuffix);
-                    try (FileOutputStream fos = new FileOutputStream(f)) {
-                        ObjectOutputStream oos = new ObjectOutputStream(fos);
-                        oos.writeObject(results);
-                        log.debug(() -> "saved to " + f.getAbsolutePath());
-                    } catch (Exception e) {
-                        // TODO err
-                        out.println(e);
-                    }
-                }
-                else
-                    showSnapshotFiles(out);
-                break;
-            case "print":
-            case "p":
-                out.println(results.summary());
-                break;
-            default:
-                out.println("? unknown command");
+                    else
+                        showSnapshotFiles(out);
+                    break;
+                case "print":
+                case "p":
+                    out.println(results.summary());
+                    break;
+                default:
+                    out.println("? unknown command");
+            }
+        } catch (IndexOutOfBoundsException e) {
+            log.debug(() -> "runtime error: " + e);
+            out.println(message("e.0", message("e.numberIndexOutOfBounds", e.getMessage())));
+        } catch (IllegalArgumentException e) {
+            log.debug(() -> "runtime error: " + e);
+            out.println(message("e.0", message("e.illegalArgument", e.getMessage())));
+        } catch (RuntimeException e) {
+            log.debug(() -> "runtime error: " + e);
+            out.println(message("e.0", e.getMessage()));
+        } catch (FileNotFoundException e) {
+            log.warn(() -> "File not found", e);
+            out.println(message("e.0", message("e.fileCannotOpen", e.getMessage())));
+        } catch (IOException e) {
+            log.warn(() -> "I/O error", e);
+            out.println(message("e.0", e.getMessage()));
         }
     }
 
-    static void showSnapshotFiles(PrintWriter out) {
+    static void showSnapshotFiles(PrintWriter out) throws IOException {
         final File etcDir = getEtcDirectory();
         out.println("directory: " + etcDir.getAbsolutePath());
         if (etcDir.exists()) {
-            List<Path> a;
-            try {
-                PathMatcher pm = FileSystems.getDefault().getPathMatcher("glob:*" + savefileSuffix);
-                a = Files.list(etcDir.toPath()).filter(x -> pm.matches(x.getFileName()))
-                        .sorted(PathSorter.createComparator("_mtime")).collect(Collectors.toList());
-            } catch (IOException e) {
-                log.error(() -> "cause of Files.list(Path)", e);
-                // TODO err
-                out.println(e);
-                return;
-            }
+            PathMatcher pm = FileSystems.getDefault().getPathMatcher("glob:*" + savefileSuffix);
+            List<Path> a = Files.list(etcDir.toPath()).filter(x -> pm.matches(x.getFileName()))
+                    .sorted(PathSorter.createComparator("_mtime")).collect(Collectors.toList());
             if (!a.isEmpty()) {
                 out.println("files:");
                 final int suffixLen = savefileSuffix.length();
@@ -190,7 +171,7 @@ final class InteractiveMode {
                 return;
             }
         }
-        out.println("no snapshot files.");
+        out.println(message("i.noSnapshotFiles"));
     }
 
     static File getEtcDirectory() {
