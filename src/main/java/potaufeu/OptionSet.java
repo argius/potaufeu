@@ -39,7 +39,7 @@ public final class OptionSet {
     private boolean collectsExtension;
     private List<String> sortKeys;
     private boolean slash;
-    private boolean state;
+    private boolean interactive;
     private boolean verbose;
     private boolean showVersion;
     private boolean help;
@@ -154,8 +154,8 @@ public final class OptionSet {
         return slash;
     }
 
-    public boolean isState() {
-        return state;
+    public boolean isInteractive() {
+        return interactive;
     }
 
     public boolean isVerbose() {
@@ -205,7 +205,7 @@ public final class OptionSet {
         private static final String OPTION_EXTENSIONS = "exts";
         private static final String OPTION_SORT = "sort";
         private static final String OPTION_SLASH = "slash";
-        private static final String OPTION_STATE = "state";
+        private static final String OPTION_INTERACTIVE = "interactive";
         private static final String OPTION_VERBOSE = "verbose";
         private static final String OPTION_VERSION = "version";
         private static final String OPTION_HELP = "help";
@@ -238,7 +238,7 @@ public final class OptionSet {
             option(OPTION_EXTENSIONS);
             option(OPTION_SORT, "S", true);
             option(OPTION_SLASH);
-            option(OPTION_STATE);
+            option(OPTION_INTERACTIVE, "i");
             option(OPTION_VERBOSE);
             option(OPTION_VERSION);
             option(OPTION_HELP);
@@ -274,7 +274,7 @@ public final class OptionSet {
             o.collectsExtension = bool(cl, OPTION_EXTENSIONS);
             o.sortKeys = sortKeys(cl);
             o.slash = bool(cl, OPTION_SLASH);
-            o.state = bool(cl, OPTION_STATE);
+            o.interactive = bool(cl, OPTION_INTERACTIVE);
             o.verbose = bool(cl, OPTION_VERBOSE);
             o.showVersion = bool(cl, OPTION_VERSION);
             o.help = bool(cl, OPTION_HELP);

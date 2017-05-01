@@ -51,7 +51,7 @@ public final class App {
     }
 
     long filterPaths(Stream<Path> stream, OptionSet opts) {
-        final boolean createsResult = opts.isState() || interactive;
+        final boolean createsResult = opts.isInteractive() || interactive;
         final boolean verbose = opts.isVerbose();
         Sampler sampler = new Sampler(createsResult, verbose);
         StreamOperation.of(stream).verbose(verbose).sorted(PathSorter.getSorter(opts.getSortKeys())).sequential()
@@ -89,7 +89,7 @@ public final class App {
             for (FileLine line : grepped.get(path))
                 out.printf("%s:%d:%s%n", path2s.apply(path), line.number, line.text);
         };
-        if (opts.isState()) {
+        if (opts.isInteractive()) {
             Result r = new Result();
             stream.filter(grepFilter).peek(r::addPath).forEach(greppedAction);
             if (grepped.isEmpty())
@@ -159,7 +159,7 @@ public final class App {
 
     Stream<Path> createStream(OptionSet opts, LongAdder count) {
         final int maxDepth = opts.getMaxDepth().orElse(Integer.MAX_VALUE);
-        if (!opts.isState() && !results.isEmpty()) {
+        if (!opts.isInteractive() && !results.isEmpty()) {
             // from cached result
             log.debug(() -> "create stream from cached result");
             Result firstResult = results.getFirst();
@@ -275,7 +275,7 @@ public final class App {
             log.info(() -> "opts=" + toStringWithReflection(opts));
             App app = new App();
             app.runCommand(opts);
-            if (opts.isState())
+            if (opts.isInteractive())
                 app.startInteraction();
         } catch (Throwable e) {
             log.error(() -> "(main)", e);

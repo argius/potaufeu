@@ -48,7 +48,7 @@ public final class VerboseMessages {
                 format("slash", opts.isSlash()),
                 format("head", opts.getHeadCount()),
                 format("tail", opts.getTailCount()),
-                format("state", opts.isState())))
+                format("interactive", opts.isInteractive())))
             .collect(Collectors.joining(", "));
         // @formatter:on
     }
