@@ -2,12 +2,15 @@ package potaufeu;
 
 import static potaufeu.Messages.message;
 import java.io.*;
+import java.nio.file.*;
 import java.util.*;
+import java.util.stream.*;
 import jline.console.*;
 
 final class InteractiveMode {
 
     private static final Log log = Log.logger(InteractiveMode.class);
+    private static final String savefileSuffix = ".ss.bin";
 
     private InteractiveMode() { //empty
     }
@@ -103,6 +106,47 @@ final class InteractiveMode {
                     out.println(e);
                 }
                 break;
+            case "load":
+                if (p.has(1)) {
+                    String name = p.at(1);
+                    File f = new File(getEtcDirectory(), name + savefileSuffix);
+                    try (FileInputStream fis = new FileInputStream(f)) {
+                        ObjectInputStream ois = new ObjectInputStream(fis);
+                        ResultList o = (ResultList) ois.readObject();
+                        results.clear();
+                        results.addAll(o);
+                        out.println(results.summary());
+                        log.debug(() -> "loaded from " + f.getAbsolutePath());
+                    } catch (Exception e) {
+                        // TODO err
+                        out.println(e);
+                    }
+                }
+                else
+                    showSnapshotFiles(out);
+                break;
+            case "save":
+                if (p.has(1)) {
+                    String name = p.at(1);
+                    File dir = getEtcDirectory();
+                    if (dir.mkdir()) {
+                        // TODO err
+                        out.println("can't create directory: " + dir.getAbsolutePath());
+                        break;
+                    }
+                    File f = new File(dir, name + savefileSuffix);
+                    try (FileOutputStream fos = new FileOutputStream(f)) {
+                        ObjectOutputStream oos = new ObjectOutputStream(fos);
+                        oos.writeObject(results);
+                        log.debug(() -> "saved to " + f.getAbsolutePath());
+                    } catch (Exception e) {
+                        // TODO err
+                        out.println(e);
+                    }
+                }
+                else
+                    showSnapshotFiles(out);
+                break;
             case "print":
             case "p":
                 out.println(results.summary());
@@ -110,6 +154,59 @@ final class InteractiveMode {
             default:
                 out.println("? unknown command");
         }
+    }
+
+    static void showSnapshotFiles(PrintWriter out) {
+        final File etcDir = getEtcDirectory();
+        out.println("directory: " + etcDir.getAbsolutePath());
+        if (etcDir.exists()) {
+            List<Path> a;
+            try {
+                PathMatcher pm = FileSystems.getDefault().getPathMatcher("glob:*" + savefileSuffix);
+                a = Files.list(etcDir.toPath()).filter(x -> pm.matches(x.getFileName()))
+                        .sorted(PathSorter.createComparator("_mtime")).collect(Collectors.toList());
+            } catch (IOException e) {
+                log.error(() -> "cause of Files.list(Path)", e);
+                // TODO err
+                out.println(e);
+                return;
+            }
+            if (!a.isEmpty()) {
+                out.println("files:");
+                final int suffixLen = savefileSuffix.length();
+                final int nameWidth = a.stream().mapToInt(x -> FileAttributeFormatter.name(x).length() - suffixLen)
+                        .max().orElseGet(() -> 1);
+                final long fileSizeWidth =
+                    a.stream().mapToLong(x -> String.valueOf(x.toFile().length()).length()).max().orElseGet(() -> 1);
+                final String fmt = "%-" + nameWidth + "s (%" + fileSizeWidth + "d bytes, mtime=%s, filename=[%s])"
+                                   + TerminalOperation.EOL;
+                for (Path path : a) {
+                    FileAttributeFormatter faf = new FileAttributeFormatter(path);
+                    faf.setFileTimeFormatter(x -> String.format("%1$tF %1$tT", x.toMillis()));
+                    String name = faf.name();
+                    String shortName = name.substring(0, name.length() - suffixLen);
+                    out.printf(fmt, shortName, faf.size(), faf.formattedMtime(), name);
+                }
+                return;
+            }
+        }
+        out.println("no snapshot files.");
+    }
+
+    static File getEtcDirectory() {
+        return new File(getWorkingDirectory(), "etc");
+    }
+
+    static File getWorkingDirectory() {
+        String homeDir = Optional.ofNullable(System.getProperty("potaufeu.user.home"))
+                .orElseGet(() -> System.getProperty("user.home", ""));
+        if (homeDir.isEmpty())
+            throw new IllegalStateException("can't detect home directory");
+        File dir = new File(homeDir, ".potaufeu");
+        log.debug(() -> String.format("home directory = [%s]", dir.getAbsolutePath()));
+        if (!dir.exists())
+            throw new IllegalStateException("working directory does not exist: " + dir.getAbsolutePath());
+        return dir;
     }
 
     /**

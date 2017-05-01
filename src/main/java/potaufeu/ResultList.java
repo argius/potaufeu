@@ -7,6 +7,8 @@ import java.util.*;
  */
 final class ResultList extends LinkedList<Result> {
 
+    private static final long serialVersionUID = -9092957788977597287L;
+
     ResultList() { // empty
     }
 
