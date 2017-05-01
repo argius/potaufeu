@@ -9,7 +9,7 @@ final class Result {
     private Set<Path> pathList;
     private String name;
 
-    final Map<Path, List<FileLine>> grepped = new HashMap<>();
+    private final Map<Path, List<FileLine>> grepped = new HashMap<>();
 
     public Result() {
         this.pathList = Collections.synchronizedSet(new HashSet<>());
@@ -34,6 +34,10 @@ final class Result {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getLineCount() {
+        return this.grepped.size();
     }
 
     public Result mergeOr(Result an) {

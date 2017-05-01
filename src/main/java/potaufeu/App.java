@@ -94,7 +94,7 @@ public final class App {
             stream.filter(grepFilter).peek(r::addPath).forEach(greppedAction);
             if (grepped.isEmpty())
                 out.print(message("i.notFound"));
-            else if (results.isEmpty() || grepped.size() != results.getFirst().grepped.size()) {
+            else if (results.isEmpty() || grepped.size() != results.getFirst().getLineCount()) {
                 results.push(r);
                 out.println(results.summary());
             }
