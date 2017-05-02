@@ -6,6 +6,8 @@ Potaufeu is a find utility written in Java.
 
 Potaufeu requires JRE 8 or later.
 
+See [the project's wiki page](https://github.com/argius/potaufeu/wiki) for further information.
+
 
 
 To Install
