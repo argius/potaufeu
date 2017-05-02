@@ -60,7 +60,7 @@ public final class App {
         if (sampler.isResultRecorded)
             if (sampler.getResult().matchedCount() == 0)
                 out.println(message("i.notFound"));
-            else if (createsResult && (results.isEmpty()
+            else if (createsResult && (results.isEmpty() || !opts.getDirectories().isEmpty()
                                        || sampler.getResult().matchedCount() != results.getFirst().matchedCount())) {
                 results.push(sampler.getResult());
                 out.println(results.summary());
@@ -159,7 +159,7 @@ public final class App {
 
     Stream<Path> createStream(OptionSet opts, LongAdder count) {
         final int maxDepth = opts.getMaxDepth().orElse(Integer.MAX_VALUE);
-        if (!opts.isInteractive() && !results.isEmpty()) {
+        if (!results.isEmpty() && opts.getDirectories().isEmpty()) {
             // from cached result
             log.debug(() -> "create stream from cached result");
             Result firstResult = results.getFirst();
