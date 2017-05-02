@@ -108,7 +108,7 @@ final class InteractiveMode {
                     if (p.has(1)) {
                         String name = p.at(1);
                         File dir = getEtcDirectory();
-                        if (dir.mkdir())
+                        if (!dir.exists() && !dir.mkdir())
                             throw new IOException("can't create directory: " + dir.getAbsolutePath());
                         File f = new File(dir, name + savefileSuffix);
                         try (FileOutputStream fos = new FileOutputStream(f)) {
