@@ -10,7 +10,8 @@ import jline.console.*;
 final class InteractiveMode {
 
     private static final Log log = Log.logger(InteractiveMode.class);
-    private static final String savefileSuffix = ".ss.bin";
+    private static final String dotPotaufeu = ".potaufeu";
+    private static final String savefileSuffix = dotPotaufeu + "-ss.ser";
 
     private InteractiveMode() { //empty
     }
@@ -183,7 +184,7 @@ final class InteractiveMode {
                 .orElseGet(() -> System.getProperty("user.home", ""));
         if (homeDir.isEmpty())
             throw new IllegalStateException("can't detect home directory");
-        File dir = new File(homeDir, ".potaufeu");
+        File dir = new File(homeDir, dotPotaufeu);
         log.debug(() -> String.format("home directory = [%s]", dir.getAbsolutePath()));
         if (!dir.exists())
             throw new IllegalStateException("working directory does not exist: " + dir.getAbsolutePath());
