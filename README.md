@@ -27,10 +27,10 @@ $ curl -fsSL https://goo.gl/m54fCw | sh
 
 Both of these urls are shortened of `https://raw.githubusercontent.com/argius/potaufeu/master/install.sh`.
 
-To uninstall, remove `~/.potaufeu` and `/usr/local/bin/potf`.
+To uninstall, remove `~/.potaufeu` and `$(which potf)`.
 
 
-You need only to download, see [https://github.com/argius/potaufeu/releases].
+You need only to download, see [the releases page](https://github.com/argius/potaufeu/releases).
 
 
 
