@@ -86,6 +86,10 @@ final class InteractiveMode {
                         out.println(results.summary());
                     }
                     break;
+                case "rotate":
+                    Collections.rotate(results, getParameterArgAsInt(p, 1, 0));
+                    out.println(results.summary());
+                    break;
                 case "load":
                     if (p.has(1)) {
                         String name = p.at(1);
