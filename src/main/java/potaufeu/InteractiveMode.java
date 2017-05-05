@@ -55,7 +55,7 @@ final class InteractiveMode {
         try {
             switch (p.at(0)) {
                 case "drop":
-                    results.drop(getParameterArgAsInt(p, 1, 1));
+                    results.drop(getParameterArgAsInt(p, 1, 0));
                     out.println(results.summary());
                     break;
                 case "pick":

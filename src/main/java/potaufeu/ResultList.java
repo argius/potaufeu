@@ -28,7 +28,9 @@ final class ResultList extends LinkedList<Result> {
     /**
      * Shifts elements as many times as specified.
      * @param ntimes the number of times
+     * @deprecated use <code>drop</code> with a negative integer insteads
      */
+    @Deprecated
     void shift(int ntimes) {
         for (int i = 0; !isEmpty() && i < ntimes; i++)
             pollLast();
@@ -39,10 +41,20 @@ final class ResultList extends LinkedList<Result> {
      * @param n number of elements to remove
      */
     public void drop(int n) {
-        if (n < 1)
-            throw new IllegalArgumentException("drop requires 1+");
-        for (int i = 0; !isEmpty() && i < n; i++)
-            pollFirst();
+        Runnable f;
+        final int limit;
+        if (n > 0) {
+            f = () -> pollFirst();
+            limit = n;
+        }
+        else if (n < 0) {
+            f = () -> pollLast();
+            limit = n * -1;
+        }
+        else
+            return; // do nothing
+        for (int i = 0; !isEmpty() && i < limit; i++)
+            f.run();
     }
 
     /**

@@ -26,6 +26,7 @@ public final class ResultListTest {
         assertEquals("Results: [#0:first(0), #1:second(0), #2:first(0), #3:second(0)]", a.summary());
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testShift() {
         ResultList a = new ResultList();
@@ -46,13 +47,22 @@ public final class ResultListTest {
         ResultList a = new ResultList();
         a.add(namedResult("first"));
         a.add(namedResult("second"));
-        assertEquals("java.lang.IllegalArgumentException: drop requires 1+", getExceptionAsString(() -> a.drop(0)));
         a.drop(1);
         assertEquals(1, a.size());
         assertEquals("Results: [#0:second(0)]", a.summary());
         a.drop(2);
         assertEquals(0, a.size());
         assertEquals("Results: []", a.summary());
+        a.add(namedResult("X1"));
+        a.add(namedResult("X2"));
+        a.add(namedResult("X3"));
+        a.add(namedResult("X4"));
+        a.drop(-1);
+        assertEquals(3, a.size());
+        assertEquals("Results: [#0:X1(0), #1:X2(0), #2:X3(0)]", a.summary());
+        a.drop(-2);
+        assertEquals(1, a.size());
+        assertEquals("Results: [#0:X1(0)]", a.summary());
     }
 
     @Test
