@@ -89,7 +89,7 @@ unzip -o $zipfile $jarfile || errexit "failed to unzip"
 
 mkdir -p $libdir && cp -fp $jarfile $libdir/
 test -f $libdir/$jarfile || errexit "failed to copy jar file"
-mkdir -p $bindir && ( echo "#!/bin/sh" ; echo "java $javaopts -jar $jarpath \$@" ) > $binfile
+mkdir -p $bindir && ( echo "#!/bin/sh" ; echo "java $javaopts -jar $jarpath \"\$@\"" ) > $binfile
 test -f $binfile || errexit "failed to create $binfile"
 chmod +x $binfile || errexit "failed to change a permission"
 ln -sf $binfile $execfile || errexit "failed to create a symlink of $binfile"
