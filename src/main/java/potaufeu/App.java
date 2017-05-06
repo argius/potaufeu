@@ -215,6 +215,7 @@ public final class App {
 
     public void showHelp() {
         HelpFormatter hf = new HelpFormatter();
+        hf.setSyntaxPrefix(message("i.usagePrefix"));
         String usage = message("i.usage");
         String header = message("help.header");
         String footer = message("help.footer");
