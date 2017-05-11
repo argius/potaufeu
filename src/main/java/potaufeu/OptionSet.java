@@ -41,12 +41,23 @@ public final class OptionSet {
     private boolean slash;
     private boolean interactive;
     private boolean verbose;
+    private boolean ignoreAccessDenied; // true by default
     private boolean showVersion;
     private boolean help;
 
     private OptionSet() {
         this.createdTime = System.currentTimeMillis();
         this.rootPath = Paths.get("");
+        this.ignoreAccessDenied = initIgnoreAccessDenied();
+    }
+
+    static boolean initIgnoreAccessDenied() {
+        final String k = "potaufeu.suppressIgnoreAccessDenied";
+        String v = Optional.ofNullable(System.getenv(k)).orElseGet(() -> System.getProperty(k, ""));
+        if (!v.isEmpty())
+            return !Boolean.valueOf(v);
+        // true by default
+        return true;
     }
 
     public static OptionSet parseArguments(String[] args) throws Exception {
@@ -160,6 +171,10 @@ public final class OptionSet {
 
     public boolean isVerbose() {
         return verbose;
+    }
+
+    public boolean isIgnoreAccessDenied() {
+        return ignoreAccessDenied;
     }
 
     public boolean isShowVersion() {

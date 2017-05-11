@@ -190,8 +190,9 @@ public final class App {
         if (dirs.isEmpty())
             dirs.add(opts.getRootPath());
         log.debug(() -> "stream concatenation, dirs = " + dirs);
-        return dirs.stream().map(dir -> PathIterator.streamOf(dir, maxDepth)).reduce(Stream::concat)
-                .orElseGet(Stream::empty).peek(path -> count.increment());
+        log.debug(() -> "isIgnoreAccessDenied = " + opts.isIgnoreAccessDenied());
+        return dirs.stream().map(dir -> PathIterator.streamOf(dir, maxDepth, opts.isIgnoreAccessDenied()))
+                .reduce(Stream::concat).orElseGet(Stream::empty).peek(path -> count.increment());
     }
 
     @SuppressWarnings("resource")

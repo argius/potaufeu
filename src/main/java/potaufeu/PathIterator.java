@@ -11,12 +11,14 @@ final class PathIterator implements Iterator<Path> {
     private final int maxDepth;
     private final Queue<Path> q;
     private final Queue<Path> dirs;
+    private final boolean ignoreAccessDenied;
 
-    PathIterator(Path root, int maxDepth) {
+    PathIterator(Path root, int maxDepth, boolean ignoreAccessDenied) {
         this.rootDepth = root.getNameCount();
         this.maxDepth = maxDepth;
         this.q = new LinkedList<>();
         this.dirs = new LinkedList<>();
+        this.ignoreAccessDenied = ignoreAccessDenied;
         q.offer(root);
         dirs.offer(root);
     }
@@ -34,11 +36,16 @@ final class PathIterator implements Iterator<Path> {
     }
 
     static Stream<Path> streamOf(Path root) {
-        return streamOf(root, Integer.MAX_VALUE);
+        return streamOf(root, Integer.MAX_VALUE, false);
     }
 
     static Stream<Path> streamOf(Path root, int maxDepth) {
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(new PathIterator(root, maxDepth), 0), false);
+        return streamOf(root, maxDepth, false);
+    }
+
+    static Stream<Path> streamOf(Path root, int maxDepth, boolean ignoreAccessDenied) {
+        PathIterator pathIterator = new PathIterator(root, maxDepth, ignoreAccessDenied);
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(pathIterator, 0), false);
     }
 
     void traverse(int requiredSize) {
@@ -62,8 +69,11 @@ final class PathIterator implements Iterator<Path> {
 
     void err(Exception e, Path path) {
         final String msg;
-        if (e instanceof AccessDeniedException)
+        if (e instanceof AccessDeniedException) {
+            if (ignoreAccessDenied)
+                return;
             msg = "access denied";
+        }
         else if (e instanceof NoSuchFileException)
             msg = "no such file or directory";
         else
