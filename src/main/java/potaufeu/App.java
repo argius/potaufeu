@@ -187,11 +187,11 @@ public final class App {
             else
                 dirs.add(dir);
         }
-        Path firstDir = (dirs.isEmpty()) ? opts.getRootPath() : dirs.remove(0);
-        Stream<Path> stream = PathIterator.streamOf(firstDir, maxDepth);
-        for (Path dir : dirs)
-            stream = Stream.concat(stream, PathIterator.streamOf(dir, maxDepth));
-        return stream.peek(path -> count.increment());
+        if (dirs.isEmpty())
+            dirs.add(opts.getRootPath());
+        log.debug(() -> "stream concatenation, dirs = " + dirs);
+        return dirs.stream().map(dir -> PathIterator.streamOf(dir, maxDepth)).reduce(Stream::concat)
+                .orElseGet(Stream::empty).peek(path -> count.increment());
     }
 
     @SuppressWarnings("resource")
