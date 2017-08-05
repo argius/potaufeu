@@ -83,7 +83,7 @@ public final class App {
 
     long filterPathsAndLines(Stream<Path> stream, OptionSet opts) {
         Map<Path, List<FileLine>> grepped = new HashMap<>();
-        Predicate<Path> grepFilter = createGrepFilter(opts.getGrepPatterns(), grepped);
+        Predicate<Path> grepFilter = LineMatcherFactory.createGrepFilter(opts.getGrepPatterns(), grepped);
         Function<Path, String> path2s = TerminalOperation.path2s(opts);
         Consumer<Path> greppedAction = path -> {
             for (FileLine line : grepped.get(path))
@@ -126,33 +126,6 @@ public final class App {
             for (PathMatcher matcher : a)
                 if (!matcher.matches(x))
                     return false;
-            return true;
-        };
-    }
-
-    private static Predicate<Path> createGrepFilter(List<String> patterns, Map<Path, List<FileLine>> grepped) {
-        return path -> {
-            List<FileLine> fileLines = new ArrayList<>();
-            try (LineNumberReader r = new LineNumberReader(Files.newBufferedReader(path))) {
-                while (true) {
-                    final String line = r.readLine();
-                    if (line == null)
-                        break;
-                    int c = 0;
-                    for (String ptn : patterns)
-                        if (line.contains(ptn))
-                            ++c;
-                    if (c == patterns.size())
-                        fileLines.add(new FileLine(r.getLineNumber(), line));
-                }
-            } catch (IOException e) {
-                log.warn(() -> "at createGrepFilter, " + e);
-                System.err.printf("potf: '%s': cannot open file, cause=%s%n", path, e.getMessage());
-                return false;
-            }
-            if (fileLines.isEmpty())
-                return false;
-            grepped.put(path, fileLines);
             return true;
         };
     }
