@@ -7,6 +7,9 @@ import java.util.function.*;
 @FunctionalInterface
 public interface TerminalOperation extends Consumer<Path> {
 
+    public static TerminalOperation NOT_FOR_PATH = x -> {
+    };
+
     static final String EOL = getEol();
 
     static String getEol() {
@@ -31,6 +34,10 @@ public interface TerminalOperation extends Consumer<Path> {
             return pf.list();
         if (opts.isPrintsLineCount())
             return pf.linesCountList();
+        if (!opts.getGrepPatterns().isEmpty())
+            return NOT_FOR_PATH;
+        if (opts.isCollectsExtension())
+            return NOT_FOR_PATH;
         return pf.path();
     }
 

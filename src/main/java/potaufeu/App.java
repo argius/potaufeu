@@ -39,10 +39,10 @@ public final class App {
         log.info(() -> "running");
         final long startTime = System.currentTimeMillis();
         final long matchedCount;
-        if (opts.isCollectsExtension())
-            matchedCount = collectExtensions(stream, opts);
-        else if (!opts.getGrepPatterns().isEmpty())
+        if (!opts.getGrepPatterns().isEmpty())
             matchedCount = filterPathsAndLines(stream, opts);
+        else if (opts.isCollectsExtension())
+            matchedCount = collectExtensions(stream, opts);
         else
             matchedCount = filterPaths(stream, opts);
         if (verbose)
@@ -84,14 +84,19 @@ public final class App {
     long filterPathsAndLines(Stream<Path> stream, OptionSet opts) {
         Map<Path, List<FileLine>> grepped = new HashMap<>();
         Predicate<Path> grepFilter = LineMatcherFactory.createGrepFilter(opts.getGrepPatterns(), grepped);
-        Function<Path, String> path2s = TerminalOperation.path2s(opts);
-        Consumer<Path> greppedAction = path -> {
-            for (FileLine line : grepped.get(path))
-                out.printf("%s:%d:%s%n", path2s.apply(path), line.number, line.text);
-        };
+        if (opts.isCollectsExtension())
+            return collectExtensions(stream.filter(grepFilter), opts);
+        TerminalOperation action = TerminalOperation.with(out, opts);
+        if (action == TerminalOperation.NOT_FOR_PATH) {
+            Function<Path, String> path2s = TerminalOperation.path2s(opts);
+            action = path -> {
+                for (FileLine line : grepped.get(path))
+                    out.printf("%s:%d:%s%n", path2s.apply(path), line.number, line.text);
+            };
+        }
         if (opts.isInteractive()) {
             Result r = new Result();
-            stream.filter(grepFilter).peek(r::addPath).forEach(greppedAction);
+            stream.filter(grepFilter).peek(r::addPath).forEachOrdered(action);
             if (grepped.isEmpty())
                 out.print(message("i.notFound"));
             else if (results.isEmpty() || grepped.size() != results.getFirst().getLineCount()) {
@@ -102,7 +107,7 @@ public final class App {
         }
         else {
             LongAdder count = new LongAdder();
-            stream.peek(x -> count.increment()).filter(grepFilter).forEach(greppedAction);
+            stream.peek(x -> count.increment()).filter(grepFilter).forEachOrdered(action);
             return count.longValue();
         }
     }
