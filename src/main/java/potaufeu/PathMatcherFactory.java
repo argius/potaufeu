@@ -19,28 +19,58 @@ public final class PathMatcherFactory {
     private PathMatcherFactory() {
     }
 
+    public static Optional<PathMatcher> createFromStringPatterns(List<String> patterns, Function<Path, String> extr) {
+        if (patterns.stream().filter(x -> !x.isEmpty()).count() > 0) {
+            StringMatchingPredicate matcher = StringMatchingPredicate.create(patterns);
+            return Optional.of(path -> matcher.matches(extr.apply(path)));
+        }
+        return Optional.empty();
+    }
+
+    public static Optional<PathMatcher> createMatcherByPath(OptionSet opts) {
+        log.debug(() -> "createMatcherByPath: patterns=<" + opts.getPathPatterns() + ">");
+        return createFromStringPatterns(opts.getPathPatterns(), Object::toString);
+    }
+
+    public static Optional<PathMatcher> createMatcherByName(OptionSet opts) {
+        log.debug(() -> "createMatcherByName: patterns=<" + opts.getNamePatterns() + ">");
+        return createFromStringPatterns(opts.getNamePatterns(), FileAttributeFormatter::name);
+    }
+
+    public static Optional<PathMatcher> createMatcherByExclusion(OptionSet opts) {
+        log.debug(() -> "createMatcherByExclusion: patterns=<" + opts.getExclusionPatterns() + ">");
+        return createFromStringPatterns(opts.getExclusionPatterns(), Object::toString)
+                .map(x -> path -> !x.matches(path));
+    }
+
     public static List<PathMatcher> toPathMatchers(List<String> patterns, Function<String, PathMatcher> mapper) {
         return patterns.stream().map(mapper).collect(Collectors.toList());
     }
 
+    @Deprecated
     public static List<PathMatcher> exclusionMatchers(OptionSet opts) {
         log.debug(() -> "exclusionMatchers: pattern=<" + opts.getExclusionPatterns() + ">");
         return toPathMatchers(opts.getExclusionPatterns(), x -> exclusionMatcher(x));
     }
 
+    @Deprecated
     public static PathMatcher exclusionMatcher(String pattern) {
         log.debug(() -> "exclusionMatcher: pattern=<" + pattern + ">");
-        return path -> !path.toString().contains(pattern);
+        StringMatchingPredicate matcher = StringMatchingPredicate.create(pattern);
+        return path -> !matcher.matches(path.toString());
     }
 
+    @Deprecated
     public static List<PathMatcher> nameMatchers(OptionSet opts) {
         log.debug(() -> "nameMatchers: pattern=<" + opts.getNamePatterns() + ">");
         return toPathMatchers(opts.getNamePatterns(), x -> nameMatcher(x));
     }
 
+    @Deprecated
     public static PathMatcher nameMatcher(String pattern) {
         log.debug(() -> "nameMatcher: pattern=<" + pattern + ">");
-        return path -> FileAttributeFormatter.name(path).contains(pattern);
+        StringMatchingPredicate matcher = StringMatchingPredicate.create(pattern);
+        return path -> matcher.matches(FileAttributeFormatter.name(path));
     }
 
     public static Optional<PathMatcher> extensionMatchers(OptionSet opts) {
@@ -63,14 +93,17 @@ public final class PathMatcherFactory {
         return Optional.of(path -> FileAttributeFormatter.name(path).matches(pattern));
     }
 
+    @Deprecated
     public static List<PathMatcher> pathMatchers(OptionSet opts) {
         log.debug(() -> "PathMatchers: patterns=<" + opts.getPathPatterns() + ">");
         return toPathMatchers(opts.getPathPatterns(), x -> pathMatcher(x));
     }
 
+    @Deprecated
     public static PathMatcher pathMatcher(String pattern) {
         log.debug(() -> "PathMatcher: pattern=<" + pattern + ">");
-        return path -> path.toString().contains(pattern);
+        StringMatchingPredicate matcher = StringMatchingPredicate.create(pattern);
+        return path -> matcher.matches(path.toString());
     }
 
     public static List<PathMatcher> fileTypeMatchers(OptionSet opts) {

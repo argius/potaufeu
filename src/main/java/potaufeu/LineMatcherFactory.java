@@ -32,9 +32,10 @@ public final class LineMatcherFactory {
     }
 
     public static Predicate<Path> createGrepFilter(List<String> patterns, Map<Path, List<FileLine>> grepped) {
+        StringMatchingPredicate matcher = StringMatchingPredicate.create(patterns);
         return path -> {
             try {
-                List<FileLine> fileLines = doGrep(patterns, path);
+                List<FileLine> fileLines = doGrep(matcher, path);
                 if (fileLines.isEmpty())
                     return false;
                 grepped.put(path, fileLines);
@@ -47,15 +48,14 @@ public final class LineMatcherFactory {
         };
     }
 
-    private static List<FileLine> doGrep(List<String> patterns, Path path) throws IOException {
-        Charset defaultCharset = Charset.defaultCharset();
+    private static List<FileLine> doGrep(StringMatchingPredicate matcher, Path path) throws IOException {
         try {
-            return grep(patterns, path, defaultCharset);
+            return grep(matcher, path, Charset.defaultCharset());
         } catch (IOException e) {
             log.debug(() -> "at doGrep, charset=default, e=" + e);
             for (Charset charset : charsetsExceptDefault().get())
                 try {
-                    return grep(patterns, path, charset);
+                    return grep(matcher, path, charset);
                 } catch (IOException e1) {
                     log.debug(() -> "at doGrep, charset=" + charset + ", e=" + e);
                 }
@@ -63,18 +63,14 @@ public final class LineMatcherFactory {
         }
     }
 
-    public static List<FileLine> grep(List<String> patterns, Path path, Charset charset) throws IOException {
+    public static List<FileLine> grep(StringMatchingPredicate matcher, Path path, Charset charset) throws IOException {
         List<FileLine> fileLines = new ArrayList<>();
         try (LineNumberReader r = new LineNumberReader(Files.newBufferedReader(path, charset))) {
             while (true) {
                 final String line = r.readLine();
                 if (line == null)
                     break;
-                int c = 0;
-                for (String ptn : patterns)
-                    if (line.contains(ptn))
-                        ++c;
-                if (c == patterns.size())
+                if (matcher.matches(line))
                     fileLines.add(new FileLine(r.getLineNumber(), line));
             }
         }

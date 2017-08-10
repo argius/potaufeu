@@ -114,10 +114,10 @@ public final class App {
 
     private Predicate<Path> integratedFilter(OptionSet opts) {
         List<PathMatcher> a = new ArrayList<>();
-        a.addAll(PathMatcherFactory.nameMatchers(opts));
+        PathMatcherFactory.createMatcherByName(opts).ifPresent(a::add);
         PathMatcherFactory.extensionMatchers(opts).ifPresent(a::add);
-        a.addAll(PathMatcherFactory.exclusionMatchers(opts));
-        a.addAll(PathMatcherFactory.pathMatchers(opts));
+        PathMatcherFactory.createMatcherByExclusion(opts).ifPresent(a::add);
+        PathMatcherFactory.createMatcherByPath(opts).ifPresent(a::add);
         a.addAll(PathMatcherFactory.fileTypeMatchers(opts));
         a.addAll(PathMatcherFactory.fileSizeMatchers(opts));
         a.addAll(PathMatcherFactory.ctimeMatchers(opts));

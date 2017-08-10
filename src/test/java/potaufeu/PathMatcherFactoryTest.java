@@ -41,6 +41,7 @@ public final class PathMatcherFactoryTest {
         assertEquals(a.size(), toPathMatchers(a, x -> f -> true).size());
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testExclusionMatchers() throws Exception {
         Parser parser = new Parser();
@@ -56,6 +57,7 @@ public final class PathMatcherFactoryTest {
         assertFalse(f.matches(path2));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testNameMatchers() throws Exception {
         Parser parser = new Parser();
@@ -87,6 +89,7 @@ public final class PathMatcherFactoryTest {
         assertFalse(f.matches(path2));
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testPathMatchers() throws Exception {
         Parser parser = new Parser();
