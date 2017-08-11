@@ -86,14 +86,7 @@ public final class App {
         Predicate<Path> grepFilter = LineMatcherFactory.createGrepFilter(opts.getGrepPatterns(), grepped);
         if (opts.isCollectsExtension())
             return collectExtensions(stream.filter(grepFilter), opts);
-        TerminalOperation action = TerminalOperation.with(out, opts);
-        if (action == TerminalOperation.NOT_FOR_PATH) {
-            Function<Path, String> path2s = TerminalOperation.path2s(opts);
-            action = path -> {
-                for (FileLine line : grepped.get(path))
-                    out.printf("%s:%d:%s%n", path2s.apply(path), line.number, line.text);
-            };
-        }
+        TerminalOperation action = getTerminalOperationForLines(opts, grepped);
         if (opts.isInteractive()) {
             Result r = new Result();
             stream.filter(grepFilter).peek(r::addPath).forEachOrdered(action);
@@ -110,6 +103,20 @@ public final class App {
             stream.peek(x -> count.increment()).filter(grepFilter).forEachOrdered(action);
             return count.longValue();
         }
+    }
+
+    private TerminalOperation getTerminalOperationForLines(OptionSet opts, Map<Path, List<FileLine>> grepped) {
+        TerminalOperation action = TerminalOperation.with(out, opts);
+        if (action == TerminalOperation.NOT_FOR_PATH) {
+            Function<Path, String> path2s = TerminalOperation.path2s(opts);
+            return path -> {
+                for (FileLine line : grepped.get(path))
+                    out.printf("%s:%d:%s%n", path2s.apply(path), line.number, line.text);
+            };
+        }
+        else if (opts.isPrintsLineCount())
+            return TerminalOperation.createFileAttributePrinter(out, opts).linesCountList(grepped);
+        return action;
     }
 
     private Predicate<Path> integratedFilter(OptionSet opts) {

@@ -5,6 +5,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.*;
 import java.time.*;
 import java.time.format.*;
+import java.util.*;
 import java.util.function.*;
 
 public final class FileAttributePrinter {
@@ -82,11 +83,18 @@ public final class FileAttributePrinter {
     }
 
     public TerminalOperation linesCountList() {
+        return linesCountList(Collections.emptyMap());
+    }
+
+    public TerminalOperation linesCountList(Map<Path, List<FileLine>> grepped) {
         final String fmt = "%9s lines %9s bytes %s" + eol;
         return x -> {
             long lineCount = -1;
             try {
-                lineCount = Files.lines(x).count();
+                if (grepped.containsKey(x))
+                    lineCount = grepped.get(x).size();
+                else
+                    lineCount = Files.lines(x).count();
             } catch (IOException e) {
                 log.warn(() -> "in linesCountList: " + e);
             }
