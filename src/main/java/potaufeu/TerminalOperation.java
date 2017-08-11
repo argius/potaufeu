@@ -22,8 +22,7 @@ public interface TerminalOperation extends Consumer<Path> {
         if (opts.isQuiet())
             return x -> {
             };
-        Function<Path, String> path2s = path2s(opts);
-        FileAttributePrinter pf = new FileAttributePrinter(out, EOL, path2s);
+        FileAttributePrinter pf = createFileAttributePrinter(out, opts);
         if (opts.isPrintsFullpath())
             return pf.fullPath();
         if (opts.isPrintsDetailList())
@@ -39,6 +38,10 @@ public interface TerminalOperation extends Consumer<Path> {
         if (opts.isCollectsExtension())
             return NOT_FOR_PATH;
         return pf.path();
+    }
+
+    public static FileAttributePrinter createFileAttributePrinter(PrintWriter out, OptionSet opts) {
+        return new FileAttributePrinter(out, EOL, path2s(opts));
     }
 
     public static Function<Path, String> path2s(OptionSet opts) {
