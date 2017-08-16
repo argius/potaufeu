@@ -35,6 +35,8 @@ public final class LineMatcherFactory {
         StringMatchingPredicate matcher = StringMatchingPredicate.create(patterns);
         return path -> {
             try {
+                if (Files.isDirectory(path))
+                    return false;
                 List<FileLine> fileLines = doGrep(matcher, path);
                 if (fileLines.isEmpty())
                     return false;
