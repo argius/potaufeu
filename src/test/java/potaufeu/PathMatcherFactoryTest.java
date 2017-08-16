@@ -50,6 +50,7 @@ public final class PathMatcherFactoryTest {
         assertEquals(2, exclusionMatchers(parser.parse("--exclude", "aaa", "--exclude", "bbb")).size());
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testExclusionMatcher() {
         PathMatcher f = exclusionMatcher("test2");
@@ -66,6 +67,7 @@ public final class PathMatcherFactoryTest {
         assertEquals(2, nameMatchers(parser.parse("--name", "aaa", "--name", "bbb")).size());
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testNameMatcher() {
         PathMatcher f = nameMatcher("test1");
@@ -98,6 +100,7 @@ public final class PathMatcherFactoryTest {
         assertEquals(2, pathMatchers(parser.parse("aaa", "bbb")).size());
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testPathMatcher() {
         final String slash = Paths.get("/").toString().replaceFirst("^.*(.)$", "$1");
