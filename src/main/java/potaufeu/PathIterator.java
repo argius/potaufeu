@@ -12,13 +12,22 @@ final class PathIterator implements Iterator<Path> {
     private final Queue<Path> q;
     private final Queue<Path> dirs;
     private final boolean ignoreAccessDenied;
+    private final PathMatcher exclusiveFilter;
 
     PathIterator(Path root, int maxDepth, boolean ignoreAccessDenied) {
+        this(root, maxDepth, ignoreAccessDenied, Optional.empty());
+    }
+
+    PathIterator(Path root, int maxDepth, boolean ignoreAccessDenied, Optional<PathMatcher> reverseExclusiveFilter) {
         this.rootDepth = root.getNameCount();
         this.maxDepth = maxDepth;
         this.q = new LinkedList<>();
         this.dirs = new LinkedList<>();
         this.ignoreAccessDenied = ignoreAccessDenied;
+        this.exclusiveFilter = reverseExclusiveFilter.map(x -> {
+            PathMatcher f = path -> !x.matches(path);
+            return f;
+        }).orElse(path -> false);
         q.offer(root);
         dirs.offer(root);
     }
@@ -44,7 +53,11 @@ final class PathIterator implements Iterator<Path> {
     }
 
     static Stream<Path> streamOf(Path root, int maxDepth, boolean ignoreAccessDenied) {
-        PathIterator pathIterator = new PathIterator(root, maxDepth, ignoreAccessDenied);
+        return streamOf(root, maxDepth, false, Optional.empty());
+    }
+
+    static Stream<Path> streamOf(Path root, int maxDepth, boolean ignoreAccessDenied, Optional<PathMatcher> optional) {
+        PathIterator pathIterator = new PathIterator(root, maxDepth, ignoreAccessDenied, optional);
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(pathIterator, 0), false);
     }
 
@@ -53,9 +66,11 @@ final class PathIterator implements Iterator<Path> {
             if (dirs.isEmpty())
                 break;
             Path dir = dirs.poll();
+            if (exclusiveFilter.matches(dir))
+                continue;
             try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
                 stream.forEach(x -> {
-                    if ((x.getNameCount() - rootDepth) <= maxDepth) {
+                    if ((x.getNameCount() - rootDepth) <= maxDepth && !exclusiveFilter.matches(x)) {
                         q.offer(x);
                         if (Files.isDirectory(x))
                             dirs.offer(x);
