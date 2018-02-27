@@ -176,9 +176,10 @@ public final class App {
             dirs.add(opts.getRootPath());
         log.debug(() -> "stream concatenation, dirs = " + dirs);
         log.debug(() -> "isIgnoreAccessDenied = " + opts.isIgnoreAccessDenied());
-        Optional<PathMatcher> reverseExclusiveFilter = PathMatcherFactory.createMatcherByExclusion(opts);
+        Optional<PathMatcher> optExclusiveFilter =
+            PathMatcherFactory.createMatcherByExclusion(opts).map(x -> path -> !x.matches(path)); // reverse
         return dirs.stream()
-                .map(dir -> PathIterator.streamOf(dir, maxDepth, opts.isIgnoreAccessDenied(), reverseExclusiveFilter))
+                .map(dir -> PathIterator.streamOf(dir, maxDepth, opts.isIgnoreAccessDenied(), optExclusiveFilter))
                 .reduce(Stream::concat).orElseGet(Stream::empty).peek(path -> count.increment());
     }
 

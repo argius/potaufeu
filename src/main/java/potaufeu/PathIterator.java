@@ -18,16 +18,13 @@ final class PathIterator implements Iterator<Path> {
         this(root, maxDepth, ignoreAccessDenied, Optional.empty());
     }
 
-    PathIterator(Path root, int maxDepth, boolean ignoreAccessDenied, Optional<PathMatcher> reverseExclusiveFilter) {
+    PathIterator(Path root, int maxDepth, boolean ignoreAccessDenied, Optional<PathMatcher> optExclusiveFilter) {
         this.rootDepth = root.getNameCount();
         this.maxDepth = maxDepth;
         this.q = new LinkedList<>();
         this.dirs = new LinkedList<>();
         this.ignoreAccessDenied = ignoreAccessDenied;
-        this.exclusiveFilter = reverseExclusiveFilter.map(x -> {
-            PathMatcher f = path -> !x.matches(path);
-            return f;
-        }).orElse(path -> false);
+        this.exclusiveFilter = optExclusiveFilter.orElse(path -> false);
         q.offer(root);
         dirs.offer(root);
     }
@@ -56,8 +53,9 @@ final class PathIterator implements Iterator<Path> {
         return streamOf(root, maxDepth, false, Optional.empty());
     }
 
-    static Stream<Path> streamOf(Path root, int maxDepth, boolean ignoreAccessDenied, Optional<PathMatcher> optional) {
-        PathIterator pathIterator = new PathIterator(root, maxDepth, ignoreAccessDenied, optional);
+    static Stream<Path> streamOf(Path root, int maxDepth, boolean ignoreAccessDenied,
+            Optional<PathMatcher> optExclusiveFilter) {
+        PathIterator pathIterator = new PathIterator(root, maxDepth, ignoreAccessDenied, optExclusiveFilter);
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(pathIterator, 0), false);
     }
 
