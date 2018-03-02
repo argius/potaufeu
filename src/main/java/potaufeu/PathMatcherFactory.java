@@ -39,8 +39,12 @@ public final class PathMatcherFactory {
 
     public static Optional<PathMatcher> createMatcherByExclusion(OptionSet opts) {
         log.debug(() -> "createMatcherByExclusion: patterns=<" + opts.getExclusionPatterns() + ">");
-        return createFromStringPatterns(opts.getExclusionPatterns(), Object::toString)
-                .map(x -> path -> !x.matches(path));
+        // @formatter:off
+        return opts.getExclusionPatterns().stream()
+                .map(StringMatchingPredicate::create)
+                .reduce(StringMatchingPredicate::or)
+                .map(x -> path -> !x.matches(path.toString()));
+        // @formatter:on
     }
 
     public static List<PathMatcher> toPathMatchers(List<String> patterns, Function<String, PathMatcher> mapper) {

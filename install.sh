@@ -5,7 +5,7 @@
 set -eu
 
 prodname=potaufeu
-ver=1.1.0
+ver=1.1.2
 owner=argius
 execname=potf
 execdir=/usr/local/bin

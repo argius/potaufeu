@@ -29,6 +29,51 @@ public final class PathMatcherFactoryTest {
     }
 
     @Test
+    public void testCreateFromStringPatterns() {
+        PathMatcher f = createFromStringPatterns(Arrays.asList("2.x"), path -> path.toString()).get();
+        assertFalse(f.matches(path1));
+        assertTrue(f.matches(path2));
+        assertFalse(createFromStringPatterns(Arrays.asList(), path -> path.toString()).isPresent());
+    }
+
+    @Test
+    public void testCreateMatcherByPath() throws Exception {
+        final String tmpPath = tmpFolder.getRoot().toString();
+        final int len = tmpPath.length();
+        final String ptn1 = tmpPath.substring(len - 17, len - 5);
+        System.out.println(ptn1);
+        Parser parser = new Parser();
+        PathMatcher f1 = createMatcherByPath(parser.parse(ptn1)).get();
+        assertTrue(f1.matches(path1));
+        assertTrue(f1.matches(path2));
+        PathMatcher f2 = createMatcherByPath(parser.parse(tmpPath.split("[\\\\/]"))).get();
+        assertTrue(f2.matches(path1));
+        assertTrue(f2.matches(path2));
+    }
+
+    @Test
+    public void testCreateMatcherByName() throws Exception {
+        Parser parser = new Parser();
+        PathMatcher f1 = createMatcherByName(parser.parse("-n", "st2")).get();
+        assertFalse(f1.matches(path1));
+        assertTrue(f1.matches(path2));
+        PathMatcher f2 = createMatcherByName(parser.parse("-n", "1.t", "-n", "2.x")).get();
+        assertFalse(f2.matches(path1));
+        assertFalse(f2.matches(path2));
+    }
+
+    @Test
+    public void testCreateMatcherByExclusion() throws Exception {
+        Parser parser = new Parser();
+        PathMatcher f1 = createMatcherByExclusion(parser.parse("-x", "st2")).get();
+        assertTrue(f1.matches(path1));
+        assertFalse(f1.matches(path2));
+        PathMatcher f2 = createMatcherByExclusion(parser.parse("-x", "1.t", "-x", "2.x")).get();
+        assertFalse(f2.matches(path1));
+        assertFalse(f2.matches(path2));
+    }
+
+    @Test
     public void testPathMatcherFactory() throws Exception {
         Constructor<?> ctor = PathMatcherFactory.class.getDeclaredConstructor();
         ctor.setAccessible(true);
@@ -119,6 +164,13 @@ public final class PathMatcherFactoryTest {
         PathMatcher f = fileTypeMatchers(parser.parse("-F")).get(0);
         assertTrue(f.matches(path1));
         assertTrue(f.matches(path2));
+    }
+
+    @Test
+    public void testFileContentTypeMatchers() throws Exception {
+        Parser parser = new Parser();
+        assertTrue(fileContentTypeMatchers(parser.parse("-T")).get(0).matches(path1));
+        assertFalse(fileContentTypeMatchers(parser.parse("-T")).get(0).matches(path1.getParent()));
     }
 
     @Test
