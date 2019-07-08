@@ -32,7 +32,7 @@ final class PathIterator implements Iterator<Path> {
     @Override
     public boolean hasNext() {
         if (!dirs.isEmpty())
-            traverse(128);
+            traverse(128); // do not refactor this unless you can clearly optimize
         return !q.isEmpty();
     }
 
