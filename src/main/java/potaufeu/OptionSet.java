@@ -33,6 +33,7 @@ public final class OptionSet {
     private boolean printsPosixLikeList;
     private boolean printsDetailList;
     private boolean printsLineCount;
+    private boolean printsAsTsv;
     private OptionalInt maxDepth;
     private OptionalInt headCount;
     private OptionalInt tailCount;
@@ -141,6 +142,10 @@ public final class OptionSet {
         return printsLineCount;
     }
 
+    public boolean isPrintsAsTsv() {
+        return printsAsTsv;
+    }
+
     public OptionalInt getMaxDepth() {
         return maxDepth;
     }
@@ -209,6 +214,7 @@ public final class OptionSet {
         private static final String OPTION_LIST_POSIX = "list-posix";
         private static final String OPTION_LIST_DETAIL = "list-detail";
         private static final String OPTION_LIST_LINES = "list-lines";
+        private static final String OPTION_LIST_AS_TSV = "list-as-tsv";
         // limitters
         private static final String OPTION_DEPTH = "depth";
         private static final String OPTION_HEAD = "head";
@@ -245,6 +251,7 @@ public final class OptionSet {
             option(OPTION_LIST_POSIX, "L");
             option(OPTION_LIST_DETAIL);
             option(OPTION_LIST_LINES);
+            option(OPTION_LIST_AS_TSV);
             option(OPTION_DEPTH, true);
             option(OPTION_HEAD, true);
             option(OPTION_HEADS);
@@ -283,6 +290,7 @@ public final class OptionSet {
             o.printsPosixLikeList = bool(cl, OPTION_LIST_POSIX);
             o.printsDetailList = bool(cl, OPTION_LIST_DETAIL);
             o.printsLineCount = bool(cl, OPTION_LIST_LINES);
+            o.printsAsTsv = bool(cl, OPTION_LIST_AS_TSV);
             o.maxDepth = optIntValue(cl, OPTION_DEPTH);
             o.headCount = optIntValue(cl, OPTION_HEAD, OPTION_HEADS, 10);
             o.tailCount = optIntValue(cl, OPTION_TAIL, OPTION_TAILS, 10);

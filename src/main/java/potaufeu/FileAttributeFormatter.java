@@ -3,6 +3,7 @@ package potaufeu;
 import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.*;
+import java.security.*;
 import java.util.*;
 import java.util.function.*;
 
@@ -226,6 +227,42 @@ public final class FileAttributeFormatter {
             log.warn(() -> "in ownerString", e);
         }
         return "???      ???     "; // 17 (8+1+8)
+    }
+
+    public Optional<UserPrincipal> getUserPrincipalOrEmpty() {
+        try {
+            UserPrincipal up;
+            if (attr instanceof PosixFileAttributes) {
+                PosixFileAttributes posixAttr = (PosixFileAttributes) attr;
+                up = posixAttr.owner();
+            }
+            else
+                up = Files.getOwner(path);
+            return Optional.ofNullable(up);
+        } catch (IOException e) {
+            log.warn(() -> "in getUserPrincipalOrEmpty", e);
+        }
+        return Optional.empty();
+    }
+
+    public String getUserPrincipalName() {
+        return toPrincipalNameOrEmpty(getUserPrincipalOrEmpty());
+    }
+
+    public Optional<GroupPrincipal> getGroupPrincipalOrEmpty() {
+        if (attr instanceof PosixFileAttributes) {
+            PosixFileAttributes posixAttr = (PosixFileAttributes) attr;
+            return Optional.ofNullable(posixAttr.group());
+        }
+        return Optional.empty();
+    }
+
+    public String getGroupPrincipalName() {
+        return toPrincipalNameOrEmpty(getGroupPrincipalOrEmpty());
+    }
+
+    private static String toPrincipalNameOrEmpty(Optional<? extends Principal> pr) {
+        return pr.isPresent() ? pr.get().getName() : "";
     }
 
     public static <T extends Path> Function<T, Long> toLongLambda(String attrName) {

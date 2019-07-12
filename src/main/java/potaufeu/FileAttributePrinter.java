@@ -105,6 +105,19 @@ public final class FileAttributePrinter {
         };
     }
 
+    public TerminalOperation lisAsTsv() {
+        return x -> {
+            List<String> a = new ArrayList<>();
+            FileAttributeFormatter u = new FileAttributeFormatter(x);
+            u.setFileTimeFormatter(ft -> formatFileTime(ft));
+            Collections.addAll(a, path2s.apply(x), String.format("%s%s", u.entryType(), u.aclSign()));
+            Collections.addAll(a, u.formattedPermissions().split(""));
+            Collections.addAll(a, u.getUserPrincipalName(), u.getGroupPrincipalName());
+            Collections.addAll(a, u.formattedSize(), u.formattedCtime(), u.formattedMtime(), u.formattedAtime());
+            out.println(String.join("\t", a));
+        };
+    }
+
     private static String formatFileSize(long size) {
         return String.format("%,10d", size);
     }
