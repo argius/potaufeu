@@ -202,8 +202,10 @@ public final class FileAttributeFormatter {
         // XXX bad performance ?
         if (!unixViewNotAvailableChecked)
             try {
-                return String.valueOf(Files.getAttribute(path, "unix:nlink"));
-            } catch (Exception e) {
+                final Object attr = Files.getAttribute(path, "unix:nlink");
+                if (attr != null)
+                    return attr.toString();
+            } catch (IOException e) {
                 log.debug(() -> String.format("[%s] at accessing unix:nlink", e));
                 unixViewNotAvailableChecked = true;
             }

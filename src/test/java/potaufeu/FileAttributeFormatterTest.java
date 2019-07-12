@@ -112,6 +112,14 @@ public final class FileAttributeFormatterTest {
         _assertThat(aclSign(path), x -> x == '+' || x == ' ');
     }
 
+    @Ignore // environment‐dependent
+    @Test
+    public void testNLink() {
+        FileAttributeFormatter o = new FileAttributeFormatter(path);
+        assertEquals("1", o.nLink());
+        assertEquals("1", o.nLink());
+    }
+
     @Test
     public void testGetOwnerString() {
         _assertThat(ownerString(path, readBasicAttributes(path)), x -> x.length() > 0);
