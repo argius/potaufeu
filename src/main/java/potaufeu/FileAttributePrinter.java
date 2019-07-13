@@ -111,7 +111,7 @@ public final class FileAttributePrinter {
             FileAttributeFormatter u = new FileAttributeFormatter(x);
             u.setFileTimeFormatter(ft -> formatFileTime(ft));
             Collections.addAll(a, path2s.apply(x));
-            Collections.addAll(a, String.format("%s%s", u.entryType(), u.aclSign()), u.nLink());
+            Collections.addAll(a, String.valueOf(u.entryType()), String.format("%s%s", u.nLink(), u.aclSign()).trim());
             Collections.addAll(a, u.formattedPermissions().split(""));
             Collections.addAll(a, u.getUserPrincipalName(), u.getGroupPrincipalName());
             Collections.addAll(a, u.formattedSize(), u.formattedCtime(), u.formattedMtime(), u.formattedAtime());
