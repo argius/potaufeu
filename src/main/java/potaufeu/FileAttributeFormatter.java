@@ -205,7 +205,7 @@ public final class FileAttributeFormatter {
                 final Object attr = Files.getAttribute(path, "unix:nlink");
                 if (attr != null)
                     return attr.toString();
-            } catch (IOException e) {
+            } catch (IOException | UnsupportedOperationException e) {
                 log.debug(() -> String.format("[%s] at accessing unix:nlink", e));
                 unixViewNotAvailableChecked = true;
             }
