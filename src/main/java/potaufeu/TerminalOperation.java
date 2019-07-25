@@ -34,7 +34,7 @@ public interface TerminalOperation extends Consumer<Path> {
         if (opts.isPrintsLineCount())
             return pf.linesCountList();
         if (opts.isPrintsAsTsv())
-            return pf.lisAsTsv();
+            return pf.listAsTsv();
         if (!opts.getGrepPatterns().isEmpty())
             return NOT_FOR_PATH;
         if (opts.isCollectsExtension())

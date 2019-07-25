@@ -105,7 +105,7 @@ public final class FileAttributePrinter {
         };
     }
 
-    public TerminalOperation lisAsTsv() {
+    public TerminalOperation listAsTsv() {
         return x -> {
             List<String> a = new ArrayList<>();
             FileAttributeFormatter u = new FileAttributeFormatter(x);
@@ -117,6 +117,11 @@ public final class FileAttributePrinter {
             Collections.addAll(a, u.formattedSize(), u.formattedCtime(), u.formattedMtime(), u.formattedAtime());
             out.println(String.join("\t", a));
         };
+    }
+
+    @Deprecated
+    public TerminalOperation lisAsTsv() {
+        return listAsTsv();
     }
 
     private static String formatFileSize(long size) {
