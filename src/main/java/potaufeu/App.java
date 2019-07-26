@@ -53,8 +53,10 @@ public final class App {
     long filterPaths(Stream<Path> stream, OptionSet opts) {
         final boolean createsResult = opts.isInteractive() || interactive;
         final boolean verbose = opts.isVerbose();
+        final boolean verboseForStreamOp = verbose && !opts.isDisabledVerboseFileCountOfHeadOption();
+        log.debug(() -> "StreamOperation.verbose=" + verboseForStreamOp);
         Sampler sampler = new Sampler(createsResult, verbose);
-        StreamOperation.of(stream).verbose(verbose).sorted(PathSorter.getSorter(opts.getSortKeys())).sequential()
+        StreamOperation.of(stream).verbose(verboseForStreamOp).sorted(PathSorter.getSorter(opts.getSortKeys())).sequential()
                 .peek(sampler).head(opts.getHeadCount()).tail(opts.getTailCount()).getStream()
                 .forEachOrdered(TerminalOperation.with(out, opts));
         if (sampler.isResultRecorded)

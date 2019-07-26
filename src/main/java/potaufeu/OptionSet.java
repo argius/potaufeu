@@ -43,6 +43,7 @@ public final class OptionSet {
     private boolean interactive;
     private boolean verbose;
     private boolean ignoreAccessDenied; // true by default
+    private boolean isDisabledVerboseFileCountOfHeadOption;
     private boolean showVersion;
     private boolean help;
 
@@ -50,6 +51,7 @@ public final class OptionSet {
         this.createdTime = System.currentTimeMillis();
         this.rootPath = Paths.get("");
         this.ignoreAccessDenied = initIgnoreAccessDenied();
+        this.isDisabledVerboseFileCountOfHeadOption = initDisablesVerboseFileCountOfHeadOption();
     }
 
     static boolean initIgnoreAccessDenied() {
@@ -59,6 +61,12 @@ public final class OptionSet {
             return !Boolean.valueOf(v);
         // true by default
         return true;
+    }
+
+    static boolean initDisablesVerboseFileCountOfHeadOption() {
+        final String k = "potaufeu.disablesVerboseFileCountOfHeadOption";
+        String v = Optional.ofNullable(System.getenv(k)).orElseGet(() -> System.getProperty(k, ""));
+        return Boolean.valueOf(v);
     }
 
     public static OptionSet parseArguments(String[] args) throws Exception {
@@ -180,6 +188,10 @@ public final class OptionSet {
 
     public boolean isIgnoreAccessDenied() {
         return ignoreAccessDenied;
+    }
+
+    public boolean isDisabledVerboseFileCountOfHeadOption() {
+        return isDisabledVerboseFileCountOfHeadOption;
     }
 
     public boolean isShowVersion() {
